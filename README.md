@@ -186,3 +186,13 @@ This unified architecture ensures that:
 
 One codebase. One rendering engine. Consistent results across every layout and builder.
 
+## Community & Source Code
+
+This plugin is fully open source and actively maintained.
+
+- ⭐ Star the project on GitHub
+- 🐞 Report bugs
+- 💡 Request features
+- 🔧 Submit pull requests
+
+Your feedback and contributions help improve the plugin for everyone.

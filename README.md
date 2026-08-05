@@ -14,6 +14,7 @@ Beyond a flexible post grid, the plugin includes powerful features such as AJAX-
 ### Design 1 – Responsive Grid
 
 Display posts in a clean, responsive card layout with **2–6 configurable columns**. Choose how many posts to display, and automatically show a **"Show More"** link whenever additional matching posts are available.
+<img width="675" height="615" alt="scrnli_Va8KTkNk3Yg0A5" src="https://github.com/user-attachments/assets/2fc1e632-4596-4fa0-8b4d-dcff67c90003" />
 
 ### Design 2 – Featured Golden Ratio Layout
 
@@ -23,6 +24,9 @@ Highlight your most important post using a balanced **golden-ratio layout** feat
 * Four supporting posts in a 2×2 grid (61.8% width)
 * Always displays up to five posts
 * Gracefully handles situations where fewer supporting posts are available
+
+<img width="675" height="661" alt="scrnli_8M8geEtQyyh42i" src="https://github.com/user-attachments/assets/d28d62bf-b713-41c7-9ba6-09c2295bb6e4" />
+
 
 ### Design 3 – Magazine Style List
 
@@ -34,6 +38,8 @@ Features include:
 * Fixed image column for visual consistency
 * Automatic related posts section showing up to four posts from the same category
 * Square thumbnails for related posts
+
+<img width="677" height="593" alt="scrnli_j3DkOAL9lYHXoo" src="https://github.com/user-attachments/assets/97257034-0085-472f-ab4a-58fc35369783" />
 
 ---
 

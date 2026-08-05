@@ -1,0 +1,771 @@
+/*
+ * This block's markup is fully namespaced (.pmt-* classes throughout) so
+ * it never collides with Context Blog Pro's own .blog-snippet / .row /
+ * .col-lg-* etc. -- intentional, on request. That means it does NOT
+ * inherit the theme's CSS automatically; everything the grid needs
+ * (layout, spacing, colors, type) is defined below, modeled on the
+ * theme's own "Grid column section" look.
+ */
+
+/* Scoped box-sizing reset. Without this, any descendant that doesn't
+   explicitly declare box-sizing falls back to the browser default
+   (content-box), so width:100% + padding/border/margin can silently
+   push it wider than its parent -- exactly the "image shifts outside
+   the card" symptom. Scoped to .pmt-post-grid-block only, so it can't
+   affect anything else on the page. */
+.pmt-post-grid-block,
+.pmt-post-grid-block *,
+.pmt-post-grid-block *::before,
+.pmt-post-grid-block *::after {
+	box-sizing: border-box;
+}
+
+.pmt-post-grid-block .pmt-row>[class*='pmt-col-'] {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Gap-safe column widths: calc((100% - (N-1)*gap) / N) for N columns
+   per row, so N items + (N-1) gaps always total exactly 100% -- no
+   overflow, and no need for the row's old negative-margin/padding
+   trick (which doubled the visible gap between cards versus the row
+   gap, since two adjacent cards' padding summed together). */
+.pmt-post-grid-block .pmt-col-lg-2 {
+	/* 6 per row */
+	flex: 0 0 calc((100% - 5 * var(--pmt-column-margin, 15px)) / 6);
+	max-width: calc((100% - 5 * var(--pmt-column-margin, 15px)) / 6);
+}
+
+.pmt-post-grid-block .pmt-col-lg-3 {
+	/* 4 per row */
+	flex: 0 0 calc((100% - 3 * var(--pmt-column-margin, 15px)) / 4);
+	max-width: calc((100% - 3 * var(--pmt-column-margin, 15px)) / 4);
+}
+
+.pmt-post-grid-block .pmt-col-lg-4 {
+	/* 3 per row */
+	flex: 0 0 calc((100% - 2 * var(--pmt-column-margin, 15px)) / 3);
+	max-width: calc((100% - 2 * var(--pmt-column-margin, 15px)) / 3);
+}
+
+.pmt-post-grid-block .pmt-col-lg-6 {
+	/* 2 per row */
+	flex: 0 0 calc((100% - var(--pmt-column-margin, 15px)) / 2);
+	max-width: calc((100% - var(--pmt-column-margin, 15px)) / 2);
+}
+
+.pmt-post-grid-block .pmt-col-lg-12 {
+	/* 1 per row -- no gap to subtract */
+	flex: 0 0 100%;
+	max-width: 100%;
+}
+
+@media (max-width: 991px) {
+	.pmt-post-grid-block .pmt-col-md-6 {
+		flex: 0 0 calc((100% - var(--pmt-column-margin, 15px)) / 2);
+		max-width: calc((100% - var(--pmt-column-margin, 15px)) / 2);
+	}
+}
+
+@media (max-width: 575px) {
+	.pmt-post-grid-block .pmt-col-sm-6 {
+		flex: 0 0 100%;
+		max-width: 100%;
+	}
+}
+
+.pmt-post-grid-block--empty {
+	padding: 24px;
+	border: 1px dashed #ccc;
+	border-radius: 6px;
+	color: #757575;
+	text-align: center;
+}
+
+.pmt-thumb-blog.pmt-post-grid-block {
+
+	.pmt-row {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--pmt-row-margin, 30px) var(--pmt-column-margin, 15px);
+	}
+
+	.pmt-col-lg-4,
+	.pmt-col-lg-3 {
+		border-radius: 5px;
+	}
+
+	.pmt-blog-snippet {
+		width: 100%;
+		overflow: hidden;
+		position: relative;
+		box-shadow: var(--pmt-box-shadow, 0px 2px 12px 0px rgba(0, 0, 0, 0.09));
+		border: var(--pmt-box-border, 0px solid grey);
+		border-radius: var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-bottom, 10px) var(--pmt-box-radius-bottom, 10px);
+		text-align: start;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+	}
+
+	img {
+		object-fit: cover;
+		width: 100%;
+		aspect-ratio: 1.618;
+		border-radius: var(--pmt-image-radius, 10px);
+		height: auto;
+	}
+
+	.pmt-design2-col-a img {
+		aspect-ratio: 1.2;
+	}
+
+	.pmt-related-post__image img {
+		aspect-ratio: 1;
+	}
+
+	.pmt-img-holder {
+		display: block;
+		margin: 2px 2px 2px;
+		flex-shrink: 0;
+	}
+
+	.pmt-blog-content {
+		padding: 10px 20px;
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+	}
+
+	/* Design 3: image + content side by side at the golden ratio.
+	   Same gap-safe flex-grow-ratio technique as Design 2's Column A/B
+	   (basis 0, ratios 382:618), so Column margin never causes overflow
+	   regardless of its value. */
+	.pmt-blog-snippet--row {
+		flex-direction: row;
+		align-items: stretch;
+		gap: var(--pmt-column-margin, 15px);
+	}
+
+	.pmt-blog-snippet--row.pmt-row-reverse {
+		flex-direction: row-reverse;
+	}
+
+	.pmt-blog-snippet--row .pmt-img-holder {
+		flex: 382 1 0%;
+		min-width: 0;
+		/* margin: 0; */
+		/* background-color: #f1f0f0; */
+	}
+
+	.pmt-blog-snippet--row .pmt-img-holder img {
+		width: 100%;
+		height: 100%;
+	}
+
+	.pmt-blog-snippet--row .pmt-blog-content {
+		flex: 618 1 0%;
+		min-width: 0;
+		padding: 0;
+	}
+
+	.pmt-extra-info span,
+	.pmt-extra-info span a,
+	.pmt-extra-info a,
+	.social-share li a,
+	.social-share,
+	.image-inner-content .pmt-blog-snippet .pmt-blog-content .pmt-extra-info a {
+		color: inherit;
+	}
+
+	.social-share {
+		letter-spacing: 1px;
+		font-size: 12px;
+	}
+
+	.social-share li a {
+		color: #999;
+	}
+
+	.pmt-extra-info {
+		font-family: Roboto, sans-serif;
+		display: flex;
+		flex-wrap: wrap;
+		list-style: none;
+		font-size: 12px;
+		font-weight: 400;
+		color: #aaa;
+		letter-spacing: 1px;
+		border: 1px solid #f1f0f0;
+		border-style: solid none;
+		padding: 5px 0;
+		justify-content: flex-start;
+		margin-block: 10px;
+		margin-inline: 0 10px;
+		margin-top: auto;
+		order: 98;
+	}
+
+	.pmt-extra-info,
+	.social-share {
+		line-height: 1;
+	}
+
+	.pmt-extra-info li {
+		margin-block: 5px;
+		margin-inline: 0 10px;
+	}
+
+	.pmt-category-tag {
+		display: inline-flex;
+		align-items: center;
+		gap: 4px;
+		margin: 0 6px 10px 0;
+		flex-wrap: wrap;
+	}
+
+	.pmt-category-tag__prefix,
+	.pmt-category-tag__label {
+		display: inline-block;
+		font-family: Roboto, sans-serif;
+		font-size: 12px;
+		font-weight: 500;
+		letter-spacing: 0.02em;
+		padding: 4px 9px;
+		border-radius: var(--pmt-box-radius-top, 0px);
+	}
+
+
+	.pmt-category-tag__prefix {
+		margin-right: -12px;
+		z-index: 10;
+	}
+
+	.pmt-category-tag__label {
+		text-decoration: none;
+	}
+
+	.pmt-title {
+		font-size: var(--pmt-title-font-size, 20px);
+		word-break: break-word;
+		overflow-wrap: break-word;
+		margin: 0 0 5px;
+		line-height: 1.4;
+	}
+
+	.pmt-title a {
+		color: #6b6b6b;
+	}
+
+	.pmt-blog-snippet--simple .pmt-title {
+		font-size: calc(var(--pmt-title-font-size, 20px) * var(--pmt-title-scale-b, 0.75));
+		line-height: 1.3;
+		margin: 0 0 12px;
+	}
+
+	.pmt-blog-snippet--row .pmt-title {
+		min-height: 40px;
+	}
+
+	.pmt-blog-snippet--simple .pmt-blog-content {
+		padding: 4px 10px;
+	}
+
+	.pmt-excerpt {
+		font-family: Roboto, sans-serif;
+		font-size: 14px;
+		line-height: 1.6;
+		color: #6b6b6b;
+		margin: 0 0 10px;
+	}
+
+	/* Tags: distinct pill style, separate from the category badge. */
+	.pmt-tag-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 6px;
+		list-style: none;
+		margin: 5px 0 10px;
+		padding: 0;
+	}
+
+	.pmt-design3-list .pmt-row-reverse .pmt-blog-content {
+		margin-left: 12px;
+		margin-top: 12px;
+	}
+
+	.pmt-design3-list:not(.pmt-row-reverse) .pmt-blog-content {
+		margin-top: 12px;
+	}
+
+	/* .pmt-design3-list img {
+		padding: 2px 2px 2px 2px;
+	} */
+
+	.pmt-tag-list li {
+		margin: 0;
+	}
+
+	.pmt-tag-list li a {
+		display: inline-block;
+		font-family: Roboto, sans-serif;
+		font-size: 11px;
+		font-weight: 500;
+		line-height: 1;
+		letter-spacing: 0.02em;
+		color: #666;
+		background: #f1f0f0;
+		border-radius: 999px;
+		padding: 5px 12px;
+		text-decoration: none;
+		transition: background-color 0.15s ease, color 0.15s ease;
+	}
+
+	.pmt-tag-list li a:hover {
+		filter: brightness(0.92);
+	}
+
+	.pmt-read-more {
+		display: inline-flex;
+		align-items: center;
+		align-self: flex-start;
+		gap: 6px;
+		font-family: Roboto, sans-serif;
+		font-size: 13px;
+		font-weight: 500;
+		color: #fff;
+		text-decoration: none;
+		padding: 8px 18px;
+		border-radius: 6px;
+		margin-top: 10px;
+		order: 99;
+		transition: opacity 0.15s ease;
+	}
+
+	.pmt-read-more:hover {
+		opacity: 0.88;
+	}
+
+	.pmt-read-more span {
+		transition: transform 0.15s ease;
+	}
+
+	.pmt-read-more:hover span {
+		transform: translateX(2px);
+	}
+
+	/* Text alignment: title / excerpt / meta rows. */
+	&.pmt-align-left {
+		.pmt-blog-content {
+			text-align: start;
+		}
+
+		.pmt-category-tag,
+		.pmt-extra-info,
+		.pmt-tag-list {
+			justify-content: flex-start;
+		}
+	}
+
+	&.pmt-align-center {
+		.pmt-blog-content {
+			text-align: center;
+		}
+
+		.pmt-category-tag,
+		.pmt-extra-info,
+		.pmt-tag-list {
+			justify-content: center;
+		}
+	}
+
+	&.pmt-align-right {
+		.pmt-blog-content {
+			text-align: end;
+		}
+
+		.pmt-category-tag,
+		.pmt-extra-info,
+		.pmt-tag-list {
+			justify-content: flex-end;
+		}
+	}
+}
+
+.home-section.pmt-thumb-blog {
+	padding: 30px 0;
+}
+
+.pmt-main-title {
+	font-family: Josefin Sans, sans-serif;
+	font-weight: 600;
+	line-height: 1.25;
+	margin: 0 0 24px;
+	color: #17181b;
+}
+
+h1.pmt-main-title {
+	font-size: 32px;
+}
+
+h2.pmt-main-title {
+	font-size: 26px;
+}
+
+/* Design 2: golden-ratio two-column layout (38.2% / 61.8%), 5 posts.
+   Reuses the same .pmt-blog-snippet / .pmt-title / .pmt-extra-info etc.
+   rules above (this wrapper still carries .pmt-thumb-blog.pmt-post-grid-block),
+   so box-shadow, border, radius, and all Style-panel options apply
+   identically to Design 1 and Design 2. Only the grid scaffolding below
+   is new. */
+
+.pmt-design2-grid {
+	display: flex;
+	align-items: stretch;
+	gap: var(--pmt-column-margin, 15px);
+}
+
+.pmt-design2-col-a {
+	flex: 382 1 0%;
+	min-width: 0;
+	display: flex;
+}
+
+.pmt-design2-col-a .pmt-blog-snippet {
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.pmt-design2-col-b {
+	flex: 618 1 0%;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	gap: var(--pmt-row-margin, 30px);
+}
+
+.pmt-design2-row {
+	display: flex;
+	flex: 1;
+	gap: var(--pmt-column-margin, 15px);
+}
+
+.pmt-design2-cell {
+	flex: 1 1 0%;
+	min-width: 0;
+	display: flex;
+}
+
+.pmt-design2-cell--empty {
+	border: 1px dashed #d9d9d9;
+	border-radius: var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-bottom, 10px) var(--pmt-box-radius-bottom, 10px);
+	background: transparent;
+}
+
+.pmt-design2-cell .pmt-blog-snippet {
+	width: 100%;
+}
+
+/* Simplified card (Design 2, Column B): lighter footprint -- smaller
+   title, single compact meta line, tighter padding. Title/content
+   overrides live inside the .pmt-thumb-blog.pmt-post-grid-block block
+   above (needed for CSS specificity to actually beat the base
+   .pmt-title rule -- see 2.11.1 fix note in readme.txt). */
+
+.pmt-extra-info--simple {
+	font-size: 11px;
+	padding: 4px 0;
+}
+
+@media (max-width: 767px) {
+	.pmt-design2-grid {
+		flex-direction: column;
+	}
+
+	.pmt-design2-col-a,
+	.pmt-design2-col-b {
+		flex: 1 1 100%;
+	}
+
+	.pmt-design2-row {
+		flex-direction: row;
+	}
+}
+
+/* Design 3: stacked list of image+content rows. */
+.pmt-design3-list {
+	display: flex;
+	flex-direction: column;
+	gap: var(--pmt-row-margin, 30px);
+}
+
+.pmt-design3-item {
+	width: 100%;
+}
+
+@media (max-width: 575px) {
+
+	.pmt-blog-snippet--row,
+	.pmt-blog-snippet--row.pmt-row-reverse {
+		flex-direction: column;
+	}
+}
+
+/* "Show more" button: bottom-right of .home-section, links to the
+   selected category's archive (or the blog page if no category is
+   set). Hidden whenever Specific Posts is active, or when there
+   simply aren't more matching posts than what's already shown. */
+.pmt-show-more-wrap {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 10px;
+}
+
+.pmt-show-more {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-family: Roboto, sans-serif;
+	font-size: 13px;
+	font-weight: 500;
+	color: #17181b;
+	text-decoration: none;
+	padding: 8px 18px;
+}
+
+.pmt-show-more span {
+	transition: transform 0.15s ease;
+}
+
+.pmt-show-more:hover span {
+	transform: translateX(2px);
+}
+
+/* Section header: main title (left) + live category filter dropdown
+   (right), same line. margin-left:auto on the dropdown wrapper pins it
+   to the right edge whether or not a title is actually present. */
+.pmt-section-header {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+	margin-bottom: 20px;
+}
+
+.pmt-section-header .pmt-main-title {
+	margin-bottom: 0;
+}
+
+.pmt-filter-controls {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-left: auto;
+}
+
+.pmt-orderby-filter-wrap,
+.pmt-category-filter-wrap {
+	margin: 0;
+}
+
+.pmt-orderby-filter-wrap .pmt-orderby-filter,
+.pmt-category-filter-wrap .pmt-category-filter {
+	font-family: Roboto, sans-serif;
+	font-size: 13px;
+	color: #17181b;
+	padding: 2px 27px 2px 4px;
+	border: 1px solid #d9d9d9;
+	border-radius: 6px;
+	background: #fff;
+	cursor: pointer;
+	appearance: none;
+	line-height: 1;
+	min-height: auto;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%2317181b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+}
+
+.pmt-orderby-filter-wrap .pmt-orderby-filter:focus,
+.pmt-category-filter-wrap .pmt-category-filter:focus {
+	outline: 2px solid #17181b;
+	outline-offset: 1px;
+}
+
+/* Loading state while the AJAX category swap is in flight. */
+.pmt-grid-content {
+	transition: opacity 0.15s ease;
+}
+
+.pmt-grid-content.pmt-loading {
+	pointer-events: none;
+}
+
+/* Skeleton loading state: placeholder shapes matching whichever design
+   is active, with a shimmering gradient sweep instead of the previous
+   plain opacity fade. */
+.pmt-skeleton-wrap {
+	animation: pmt-skeleton-fade-in 0.15s ease;
+}
+
+@keyframes pmt-skeleton-fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+.pmt-skeleton-card {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	width: 100%;
+}
+
+.pmt-skeleton-card--row {
+	flex-direction: row;
+	align-items: flex-start;
+	gap: var(--pmt-column-margin, 15px);
+}
+
+.pmt-skeleton-card--row .pmt-skeleton-image {
+	flex: 382 1 0%;
+	aspect-ratio: 1.618;
+}
+
+.pmt-skeleton-card-content {
+	flex: 618 1 0%;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.pmt-skeleton-card--simple .pmt-skeleton-image {
+	aspect-ratio: 1.4;
+}
+
+.pmt-skeleton-block {
+	background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
+	background-size: 400% 100%;
+	animation: pmt-skeleton-shimmer 1.4s ease infinite;
+	border-radius: 6px;
+}
+
+.pmt-skeleton-image {
+	width: 100%;
+	aspect-ratio: 1.618;
+	border-radius: var(--pmt-image-radius, 10px);
+}
+
+.pmt-skeleton-line {
+	height: 14px;
+	width: 100%;
+}
+
+.pmt-skeleton-line--title {
+	height: 18px;
+	width: 80%;
+}
+
+.pmt-skeleton-line--short {
+	width: 55%;
+}
+
+@keyframes pmt-skeleton-shimmer {
+	0% {
+		background-position: 100% 50%;
+	}
+
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.pmt-skeleton-block {
+		animation: none;
+		background: #eee;
+	}
+}
+
+/* Design 3: related posts strip under each row's content -- up to 4
+   items, square images, title 20% smaller than the parent by default
+   (adjustable via --pmt-related-title-scale, Typography panel). */
+.pmt-related-posts {
+	margin-top: 14px;
+	padding-top: 14px;
+	border-top: 1px solid #eee;
+}
+
+.pmt-related-posts__label {
+	font-family: Roboto, sans-serif;
+	font-size: 12px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	color: #757575;
+	margin: 0 0 10px;
+}
+
+.pmt-related-posts__list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.pmt-related-post {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	flex: 1 1 calc(25% - 9px);
+	min-width: 90px;
+	text-decoration: none;
+	color: inherit;
+	box-shadow: var(--pmt-box-shadow, 0px 2px 12px 0px rgba(0, 0, 0, 0.09));
+	border: var(--pmt-box-border, 0px solid grey);
+	border-radius: var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-bottom, 10px) var(--pmt-box-radius-bottom, 10px);
+}
+
+.pmt-related-post--empty {
+	aspect-ratio: 1;
+	border: 1px dashed #d9d9d9;
+	border-radius: var(--pmt-image-radius, 10px);
+	background: transparent;
+}
+
+.pmt-related-post__image {
+	aspect-ratio: 1;
+	overflow: hidden;
+	border-radius: var(--pmt-image-radius, 10px);
+	background: #f1f0f0;
+	margin: 2px 2px 2px 2px;
+}
+
+.pmt-related-post__image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	aspect-ratio: 1;
+	border-radius: var(--pmt-image-radius, 10px);
+}
+
+.pmt-related-post__title {
+	font-size: calc(var(--pmt-title-font-size, 20px) * var(--pmt-related-title-scale, 0.8));
+	line-height: 1.35;
+	margin: 8px;
+	word-break: break-word;
+	overflow-wrap: break-word;
+	color: #6b6b6b;
+}
+
+@media (max-width: 480px) {
+	.pmt-related-post {
+		flex: 1 1 calc(50% - 6px);
+	}
+}

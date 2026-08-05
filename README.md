@@ -17,7 +17,6 @@ Display posts in a clean, responsive card layout with **2–6 configurable colum
 
 <img width="675" height="615" alt="scrnli_Va8KTkNk3Yg0A5" src="https://github.com/user-attachments/assets/2fc1e632-4596-4fa0-8b4d-dcff67c90003" />
 
-
 ### Design 2 – Featured Golden Ratio Layout
 
 Highlight your most important post using a balanced **golden-ratio layout** featuring:

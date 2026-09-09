@@ -357,7 +357,7 @@ Filters the schema.org `ItemList` array before it's serialized to JSON-LD -- add
 * Added full Style controls: box shadow, border, corner radius, column/row spacing, title font size.
 * Added the "Read more" button and card element reordering.
 
-= 2.0.0 - 2.9.0 =
+= 1.1.0 - 2.9.0 =
 * Converted from a static block to a fully dynamic one (live queries, no frozen snapshots).
 * Added the Elementor widget alongside the existing Gutenberg block.
 * Added specific-post selection, excerpt support, and image/tag/category toggles.

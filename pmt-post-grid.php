@@ -3,7 +3,7 @@
  * Plugin Name:       Post Grid for Gutenberg and Elementor
  * Plugin URI:        https://postmagthemes.com/
  * Description:       A dynamic post-grid block/addons -- works in both Gutenberg (as a block) and Elementor (as a widget), sharing one PHP render function so both stay visually identical.
- * Version:           2.34.0
+ * Version:           2.41.0
  * Author:            Postmagthemes
  * Author URI:        https://postmagthemes.com/
  * Text Domain:       pmt-post-grid
@@ -18,17 +18,25 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'PMT_POST_GRID_VER', '2.34.0' );
+define( 'PMT_POST_GRID_VER', '2.41.0' );
 define( 'PMT_POST_GRID_URL', plugin_dir_url( __FILE__ ) );
 define( 'PMT_POST_GRID_PATH', plugin_dir_path( __FILE__ ) );
 
 /**
- * Look up a view count from whichever "post views" plugin/meta key is in
- * use on this site (checked in order, first match wins). Returns 0 if
- * none are present.
+ * View count for a post. Prefers this plugin's own tracking (see
+ * pmt_post_grid_maybe_count_view() below) since it's guaranteed
+ * accurate for anyone running this plugin. Falls back to whichever
+ * third-party "post views" plugin's meta key is present, so a site
+ * migrating from one of those plugins doesn't lose its existing
+ * historical counts. Returns 0 if neither is present.
  */
 function pmt_post_grid_get_views( $post_id ) {
-	$view_meta_keys = array( 'post_views_count', 'views', 'wpb_post_views_count', '_pmt_views', 'page_views_count' );
+	$own = get_post_meta( $post_id, '_pmt_views', true );
+	if ( '' !== $own && null !== $own ) {
+		return (int) $own;
+	}
+
+	$view_meta_keys = array( 'post_views_count', 'views', 'wpb_post_views_count', 'page_views_count' );
 	foreach ( $view_meta_keys as $meta_key ) {
 		$val = get_post_meta( $post_id, $meta_key, true );
 		if ( $val !== '' && $val !== null ) {
@@ -47,6 +55,72 @@ function pmt_post_grid_get_reading_time( $post_id ) {
 	$word_count = str_word_count( $plain );
 	return max( 1, (int) ceil( $word_count / 200 ) );
 }
+
+/**
+ * Tracks a view for the post currently being viewed on the front end.
+ * Hooked on 'template_redirect' -- WordPress's own hook system is the
+ * integration point, so nothing needs adding to single.php or any other
+ * theme template.
+ *
+ * Counts once per visitor per post per day (a cookie set the first time
+ * prevents a refresh, or repeat visits the same day, from inflating the
+ * number), and skips:
+ * - anything that isn't a real single 'post' view (post previews, feeds,
+ *   AJAX/cron requests, archive/home/page views),
+ * - logged-in users who can edit posts (so the author/editors/admins
+ *   browsing their own site don't count themselves),
+ * - requests whose user agent matches a common, well-behaved crawler
+ *   (not an exhaustive bot list -- no such list is -- just enough to
+ *   catch the frequent, self-identifying ones so they don't dominate
+ *   the count on a low-traffic site).
+ *
+ * Writes to this plugin's own post meta key, '_pmt_views' (leading
+ * underscore hides it from the Custom Fields UI, standard WP
+ * convention).
+ */
+function pmt_post_grid_maybe_count_view() {
+	if ( ! is_singular( 'post' ) || is_preview() || wp_doing_ajax() || wp_doing_cron() ) {
+		return;
+	}
+
+	if ( is_user_logged_in() && current_user_can( 'edit_posts' ) ) {
+		return;
+	}
+
+	$user_agent = isset( $_SERVER['HTTP_USER_AGENT'] ) ? strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) ) : '';
+	if ( '' === $user_agent ) {
+		return;
+	}
+	$bot_signatures = array(
+		'bot', 'spider', 'crawl', 'slurp', 'archiver', 'facebookexternalhit',
+		'embedly', 'quora link preview', 'outbrain', 'pinterest', 'slackbot',
+		'vkshare', 'whatsapp', 'flipboard', 'tumblr', 'bitlybot', 'nuzzel',
+		'discordbot', 'w3c_validator', 'headlesschrome', 'phantomjs',
+	);
+	foreach ( $bot_signatures as $signature ) {
+		if ( false !== strpos( $user_agent, $signature ) ) {
+			return;
+		}
+	}
+
+	$post_id = get_queried_object_id();
+	if ( ! $post_id ) {
+		return;
+	}
+
+	$cookie_name = 'pmt_pg_viewed_' . $post_id;
+	if ( isset( $_COOKIE[ $cookie_name ] ) ) {
+		return;
+	}
+
+	if ( ! headers_sent() ) {
+		setcookie( $cookie_name, '1', time() + DAY_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+	}
+
+	$current = (int) get_post_meta( $post_id, '_pmt_views', true );
+	update_post_meta( $post_id, '_pmt_views', $current + 1 );
+}
+add_action( 'template_redirect', 'pmt_post_grid_maybe_count_view' );
 
 /**
  * Returns the current post's title, trimmed to a maximum of 9 words --
@@ -792,16 +866,28 @@ function pmt_post_grid_render_card( $args, $layout_order, $title_tag, $variant =
 				// same as the 'full' variant. No Read more in Design 3.
 				$meta_items = array();
 
+				if ( ! empty( $args['showAuthor'] ) ) {
+					$author_id   = (int) get_post_field( 'post_author', $post_id );
+					$author_name = get_the_author_meta( 'display_name', $author_id );
+					$author_link = get_author_posts_url( $author_id );
+					$avatar_html = get_avatar( $author_id, 20, '', '', array( 'class' => 'pmt-author-avatar' ) );
+
+					$meta_items[] = '<li class="pmt-meta-author">' . $avatar_html . '<span class="posted-by"> '
+						. '<a href="' . esc_url( $author_link ) . '">' . esc_html( $author_name ) . '</a>'
+						. '</span></li>';
+				}
+
 				if ( $args['showDate'] ) {
 					$archive_link = get_day_link(
 						get_the_time( 'Y' ),
 						get_the_time( 'm' ),
 						get_the_time( 'd' )
 					);
-					$display_date  = esc_html( get_the_date() );								
+					$display_date  = esc_html( get_the_date() );
+					$machine_date  = esc_attr( get_the_date( 'c' ) );
 					$meta_items[] = '<li><span><i class="fa-regular fa-calendar"></i></span> <span class="posted-on"> '
 						. '<a href="' . esc_url( $archive_link ) . '">'
-						. '<time class="entry-date published updated" datetime="' . $display_date . '">' . $display_date . '</time>'
+						. '<time class="entry-date published updated" datetime="' . $machine_date . '">' . $display_date . '</time>'
 						. '</a></span></li>';
 				}
 				if ( $args['showComments'] ) {
@@ -919,13 +1005,14 @@ function pmt_post_grid_render_card( $args, $layout_order, $title_tag, $variant =
 					<?php
 					$archive_link = get_day_link( get_the_time( 'Y' ), get_the_time( 'm' ), get_the_time( 'd' ) );
 					$display_date = esc_html( get_the_date() );
+					$machine_date = esc_attr( get_the_date( 'c' ) );
 					?>
 					<ul class="pmt-extra-info pmt-extra-info--simple" style="color:<?php echo esc_attr( $cat_color['fg'] ); ?>;">
 						<li>
 							<span><i class="fa-regular fa-calendar"></i></span>
 							<span class="posted-on">
 								<a href="<?php echo esc_url( $archive_link ); ?>">
-									<time class="entry-date published updated" datetime="<?php echo $display_date; ?>"><?php echo $display_date; ?></time>
+									<time class="entry-date published updated" datetime="<?php echo $machine_date; ?>"><?php echo $display_date; ?></time>
 								</a>
 							</span>
 						</li>
@@ -1032,16 +1119,28 @@ function pmt_post_grid_render_card( $args, $layout_order, $title_tag, $variant =
 			// and right before Read more, not user-reorderable.
 			$meta_items = array();
 
+			if ( ! empty( $args['showAuthor'] ) ) {
+				$author_id   = (int) get_post_field( 'post_author', $post_id );
+				$author_name = get_the_author_meta( 'display_name', $author_id );
+				$author_link = get_author_posts_url( $author_id );
+				$avatar_html = get_avatar( $author_id, 20, '', '', array( 'class' => 'pmt-author-avatar' ) );
+
+				$meta_items[] = '<li class="pmt-meta-author">' . $avatar_html . '<span class="posted-by"> '
+					. '<a href="' . esc_url( $author_link ) . '">' . esc_html( $author_name ) . '</a>'
+					. '</span></li>';
+			}
+
 			if ( $args['showDate'] ) {
 				$archive_link = get_day_link(
 					get_the_time( 'Y' ),
 					get_the_time( 'm' ),
 					get_the_time( 'd' )
 				);
-				$display_date  = esc_html( get_the_date() );								
+				$display_date  = esc_html( get_the_date() );
+				$machine_date  = esc_attr( get_the_date( 'c' ) );
 				$meta_items[] = '<li><span><i class="fa-regular fa-calendar"></i></span> <span class="posted-on"> '
 					. '<a href="' . esc_url( $archive_link ) . '">'
-					. '<time class="entry-date published updated" datetime="' . $display_date . '">' . $display_date . '</time>'
+					. '<time class="entry-date published updated" datetime="' . $machine_date . '">' . $display_date . '</time>'
 					. '</a></span></li>';
 			}
 			if ( $args['showComments'] ) {
@@ -1067,7 +1166,7 @@ function pmt_post_grid_render_card( $args, $layout_order, $title_tag, $variant =
 			if ( $args['showReadMore'] ) {
 				$read_more_text = ! empty( $args['readMoreText'] ) ? $args['readMoreText'] : __( 'Read More', 'pmt-post-grid' );
 				?>
-				<a class="pmt-read-more" href="<?php the_permalink(); ?>" style="background:<?php echo esc_attr( $cat_color['fg'] ); ?>;">
+				<a class="pmt-read-more btn btn-text" href="<?php the_permalink(); ?>" style="background:<?php echo esc_attr( $cat_color['fg'] ); ?>;">
 					<?php echo esc_html( $read_more_text ); ?> <span aria-hidden="true">&rarr;</span>
 				</a>
 				<?php
@@ -1488,6 +1587,7 @@ function pmt_post_grid_build_markup( $args ) {
 		'postIds'           => array(),
 		'author'            => '',
 		'excludePostIds'    => array(),
+		'showAuthor'        => true,
 		'showDate'          => true,
 		'showComments'      => true,
 		'showViews'         => true,
@@ -1840,6 +1940,35 @@ function pmt_post_grid_render_callback( $attributes ) {
 	return pmt_post_grid_build_markup( $attributes );
 }
 
+// Registers a "Post Grid by Postmagthemes" category in the Gutenberg
+// block inserter -- without this, a block falls back to the generic
+// "Widgets" category. Uses the same 'postmagthemes' slug as the
+// Elementor category above, so any future block/widget from this
+// plugin (or a related one) can be added to the same category in both
+// builders just by referencing this one slug.
+//
+// Registered at a very high priority (999999999) and on both the
+// current filter name (block_categories_all) and the older, still-
+// supported one (block_categories) -- confirmed against a real-world
+// plugin doing the same thing. A low/default priority risks another
+// plugin's own category-filter callback running afterward and
+// rebuilding the categories array without preserving this addition;
+// running last avoids that regardless of what else is hooked in.
+function pmt_post_grid_register_block_category( $categories ) {
+	return array_merge(
+		array(
+			array(
+				'slug'  => 'postmagthemes',
+				'title' => __( 'Post Grid by Postmagthemes', 'pmt-post-grid' ),
+				'icon'  => 'grid-view',
+			),
+		),
+		$categories
+	);
+}
+add_filter( 'block_categories_all', 'pmt_post_grid_register_block_category', 999999999 );
+add_filter( 'block_categories', 'pmt_post_grid_register_block_category', 999999999 );
+
 add_action(
 	'init',
 	function () {
@@ -1893,22 +2022,13 @@ add_action(
 			array(),
 			PMT_POST_GRID_VER
 		);
-		// wp_register_style(
-		// 	'pmt-post-grid-fontawsome-solid-style',
-		// 	PMT_POST_GRID_URL . 'block/solid.css',
-		// 	array(),
-		// 	PMT_POST_GRID_VER
-		// );
-		// wp_register_style(
-		// 	'pmt-post-grid-fontawsome-brands-style',
-		// 	PMT_POST_GRID_URL . 'block/brands.css',
-		// 	array(),
-		// 	PMT_POST_GRID_VER
-		// );
+
 
 		register_block_type(
 			'pmt/post-grid',
 			array(
+				'api_version'     => 3,
+				'category'        => 'postmagthemes',
 				'editor_script'   => 'pmt-post-grid-editor',
 				'editor_style'    => array( 'pmt-post-grid-editor-style', 'pmt-post-grid-fontawsome-style', 'pmt-post-grid-fontawsome-regular-style' ),
 				'style'           => array( 'pmt-post-grid-style', 'pmt-post-grid-fontawsome-style', 'pmt-post-grid-fontawsome-regular-style' ),
@@ -1960,6 +2080,10 @@ add_action(
 					'orderBy'           => array(
 						'type'    => 'string',
 						'default' => 'date',
+					),
+					'showAuthor'        => array(
+						'type'    => 'boolean',
+						'default' => true,
 					),
 					'showDate'          => array(
 						'type'    => 'boolean',
@@ -2208,11 +2332,350 @@ add_action(
 				$elements_manager->add_category(
 					'postmagthemes',
 					array(
-						'title' => __( 'Postmagthemes', 'pmt-post-grid' ),
+						'title' => __( 'Post Grid by Postmagthemes', 'pmt-post-grid' ),
 						'icon'  => 'eicon-posts-grid',
 					)
 				);
 			}
 		);
+
+		// Editor-only JS for the widget's "Reset all settings" button (see
+		// the BUTTON control at the end of register_controls()). Loaded
+		// only inside the Elementor editor iframe, never on the front end
+		// or in the Gutenberg editor -- Elementor's Container API this
+		// script depends on doesn't exist in either of those contexts.
+		add_action(
+			'elementor/editor/after_enqueue_scripts',
+			function () {
+				wp_enqueue_script(
+					'pmt-post-grid-elementor-editor',
+					PMT_POST_GRID_URL . 'block/elementor-editor.js',
+					array( 'jquery', 'elementor-editor' ),
+					PMT_POST_GRID_VER,
+					true
+				);
+				wp_localize_script(
+					'pmt-post-grid-elementor-editor',
+					'pmtPostGridElementorL10n',
+					array(
+						'confirmText' => __( 'Reset all settings to default? This cannot be undone.', 'pmt-post-grid' ),
+					)
+				);
+			}
+		);
+	}
+);
+/**
+ * "Our Products" admin page -- a dedicated top-level menu item pointing
+ * visitors to postmagthemes' other WordPress.org plugins and themes,
+ * the same way many plugin authors do (e.g. a "Leave a Review" /
+ * "Our Plugins" / "Our Themes" sidebar on their own settings screen).
+ *
+ * Every name and URL below is real, pulled directly from
+ * https://profiles.wordpress.org/postmagthemes/ -- not placeholder
+ * content. If postmagthemes publishes something new, this list needs a
+ * manual update to include it.
+ */
+function pmt_post_grid_get_other_plugins() {
+	return array(
+		array(
+			'name'    => __( 'PostmagThemes Demo Import', 'pmt-post-grid' ),
+			'desc'    => __( 'One-click demo content importer for postmagthemes themes.', 'pmt-post-grid' ),
+			'url'     => 'https://wordpress.org/plugins/postmagthemes-demo-import/',
+			'icon'    => 'https://ps.w.org/postmagthemes-demo-import/assets/icon-256x256.jpg',
+			'installs' => '1,000+',
+		),
+		array(
+			'name'    => __( 'WP Theme Statistic', 'pmt-post-grid' ),
+			'desc'    => __( 'Shows a theme\'s WordPress.org stats (downloads, active installs, ratings) via a shortcode.', 'pmt-post-grid' ),
+			'url'     => 'https://wordpress.org/plugins/wp-theme-statistic/',
+			'icon'    => 'https://ps.w.org/wp-theme-statistic/assets/icon-256x256.jpg',
+			'installs' => '50+',
+		),
+	);
+}
+
+function pmt_post_grid_get_other_themes() {
+	// Screenshot URLs are version-pinned to what was live on
+	// wordpress.org/themes at the time this was written -- WordPress.org
+	// theme screenshots are served from a version-specific SVN path
+	// (there's no reliable "always latest" alias), so these version
+	// numbers will need a manual bump whenever postmagthemes ships a new
+	// release. Broken image is the worst case if one goes stale, not a
+	// broken page.
+	// Ordered by actual recency (most recently updated first), based on
+	// postmagthemes' real Theme Trac ticket history from their
+	// WordPress.org profile -- Color Newsmagazine and New Blog were
+	// both updated Aug 6 2026, Context Blog Aug 3, Newsmag Context Blog
+	// and Ink Context Blog May 21. The remaining themes have no recent
+	// update evidence from that history, so they're left in their
+	// original (roughly install-count) order after those five.
+	return array(
+		array( 'name' => 'Color Newsmagazine', 'slug' => 'color-newsmagazine', 'version' => '1.4.4', 'installs' => '500+' ),
+		array( 'name' => 'New Blog', 'slug' => 'new-blog', 'version' => '1.6.2', 'installs' => '600+' ),
+		array( 'name' => 'Context Blog', 'slug' => 'context-blog', 'version' => '1.3.7', 'installs' => '900+' ),
+		array( 'name' => 'Newsmag Context Blog', 'slug' => 'newsmag-context-blog', 'version' => '1.0.6', 'installs' => '400+' ),
+		array( 'name' => 'Ink Context Blog', 'slug' => 'ink-context-blog', 'version' => '1.1.3', 'installs' => '600+' ),
+		array( 'name' => 'Voice Blog', 'slug' => 'voice-blog', 'version' => '1.3.9', 'installs' => '200+' ),
+		array( 'name' => 'New Blog Jr', 'slug' => 'new-blog-jr', 'version' => '1.1.3', 'installs' => '200+' ),
+		array( 'name' => 'New Blog Lite', 'slug' => 'new-blog-lite', 'version' => '1.1.0', 'installs' => '200+' ),
+		array( 'name' => 'Queens Magazine Blog', 'slug' => 'queens-magazine-blog', 'version' => '1.2.6', 'installs' => '100+' ),
+		array( 'name' => 'Best News', 'slug' => 'best-news', 'version' => '1.2.0', 'installs' => '100+' ),
+		array( 'name' => 'Glamour magazine', 'slug' => 'glamour-magazine', 'version' => '1.0.8', 'installs' => '60+' ),
+		array( 'name' => 'Isha', 'slug' => 'isha', 'version' => '1.1.2', 'installs' => '60+' ),
+		array( 'name' => 'Voice Blog Lite', 'slug' => 'voice-blog-lite', 'version' => '1.1.1', 'installs' => '80+' ),
+		array( 'name' => 'Creative Business Blog', 'slug' => 'creative-business-blog', 'version' => '1.1.1', 'installs' => '30+' ),
+	);
+}
+
+add_action(
+	'admin_menu',
+	function () {
+		add_menu_page(
+			__( 'Post Grid for Gutenberg and Elementor', 'pmt-post-grid' ),
+			__( 'Post Grid for Gutenberg and Elementor', 'pmt-post-grid' ),
+			'manage_options',
+			'pmt-post-grid-products',
+			'pmt_post_grid_render_products_page',
+			'dashicons-grid-view',
+			58
+		);
+	}
+);
+
+/**
+ * Loads admin/products-page.css only on the Post Grid admin page itself
+ * -- never on any other admin screen. add_menu_page() names a top-level
+ * page's hook suffix 'toplevel_page_{menu_slug}', which is what
+ * admin_enqueue_scripts passes in as $hook_suffix.
+ */
+add_action(
+	'admin_enqueue_scripts',
+	function ( $hook_suffix ) {
+		if ( 'toplevel_page_pmt-post-grid-products' !== $hook_suffix ) {
+			return;
+		}
+		wp_enqueue_style(
+			'pmt-post-grid-products-page',
+			PMT_POST_GRID_URL . 'admin/products-page.css',
+			array(),
+			PMT_POST_GRID_VER
+		);
+	}
+);
+
+function pmt_post_grid_render_products_page() {
+	if ( ! current_user_can( 'manage_options' ) ) {
+		return;
+	}
+
+	$plugins = pmt_post_grid_get_other_plugins();
+	$themes  = pmt_post_grid_get_other_themes();
+	?>
+	<div class="wrap pmt-products-page">
+		<h1><?php esc_html_e( 'Post Grid for Gutenberg and Elementor', 'pmt-post-grid' ); ?></h1>
+		<p>
+			<?php
+			printf(
+				/* translators: %s: plugin version number. */
+				esc_html__( 'Version %s. Thanks for using this plugin -- below are our other WordPress.org plugins and themes, in case they\'re useful too.', 'pmt-post-grid' ),
+				esc_html( PMT_POST_GRID_VER )
+			);
+			?>
+		</p>
+
+		<div class="pmt-products-columns">
+
+			<div class="pmt-products-column pmt-products-column--plugins">
+				<h2><?php esc_html_e( 'Our Plugins', 'pmt-post-grid' ); ?></h2>
+				<?php foreach ( $plugins as $plugin ) : ?>
+					<div class="pmt-plugin-item">
+						<img src="<?php echo esc_url( $plugin['icon'] ); ?>" alt="" width="48" height="48" />
+						<div>
+							<a href="<?php echo esc_url( $plugin['url'] ); ?>" target="_blank" rel="noopener noreferrer" class="pmt-plugin-item__name">
+								<?php echo esc_html( $plugin['name'] ); ?>
+							</a>
+							<p class="pmt-plugin-item__desc"><?php echo esc_html( $plugin['desc'] ); ?></p>
+							<span class="pmt-installs">
+								<?php
+								/* translators: %s: active install count, e.g. "1,000+". */
+								printf( esc_html__( '%s active installs', 'pmt-post-grid' ), esc_html( $plugin['installs'] ) );
+								?>
+							</span>
+						</div>
+					</div>
+				<?php endforeach; ?>
+			</div>
+
+			<div class="pmt-products-column pmt-products-column--themes">
+				<h2><?php esc_html_e( 'Our Themes', 'pmt-post-grid' ); ?></h2>
+				<div class="pmt-themes-grid">
+					<?php foreach ( array_slice( $themes, 0, 8 ) as $theme ) : ?>
+						<a href="<?php echo esc_url( 'https://wordpress.org/themes/' . $theme['slug'] . '/' ); ?>" target="_blank" rel="noopener noreferrer" class="pmt-theme-item">
+							<img
+								src="<?php echo esc_url( 'https://i0.wp.com/themes.svn.wordpress.org/' . $theme['slug'] . '/' . $theme['version'] . '/screenshot.png?w=320' ); ?>"
+								alt="<?php echo esc_attr( $theme['name'] ); ?>"
+								loading="lazy"
+								class="pmt-theme-item__image"
+							/>
+							<strong class="pmt-theme-item__name"><?php echo esc_html( $theme['name'] ); ?></strong>
+							<span class="pmt-installs">
+								<?php
+								/* translators: %s: active install count, e.g. "900+". */
+								printf( esc_html__( '%s active installs', 'pmt-post-grid' ), esc_html( $theme['installs'] ) );
+								?>
+							</span>
+						</a>
+					<?php endforeach; ?>
+				</div>
+				<p class="pmt-more-themes">
+					<a href="https://wordpress.org/themes/author/postmagthemes/" target="_blank" rel="noopener noreferrer" class="button">
+						<?php esc_html_e( 'More themes', 'pmt-post-grid' ); ?>
+					</a>
+				</p>
+			</div>
+
+		</div>
+
+		<p class="pmt-products-footer">
+			<?php
+			printf(
+				/* translators: 1: WordPress.org profile link, 2: postmagthemes.com link. */
+				wp_kses_post( __( 'See everything we have published on our %1$s, or visit %2$s.', 'pmt-post-grid' ) ),
+				'<a href="https://profiles.wordpress.org/postmagthemes/" target="_blank" rel="noopener noreferrer">' . esc_html__( 'WordPress.org profile', 'pmt-post-grid' ) . '</a>',
+				'<a href="https://www.postmagthemes.com" target="_blank" rel="noopener noreferrer">postmagthemes.com</a>'
+			);
+			?>
+		</p>
+	</div>
+	<?php
+}
+
+/**
+ * "Leave a review" admin notice -- shown on every wp-admin page (not
+ * just this plugin's own settings screen), once an administrator has
+ * had this plugin active for more than 7 days. Hooked on
+ * 'admin_notices', which WordPress fires on every single admin page
+ * render regardless of which menu item is open -- that's the entire
+ * mechanism; there's no per-page targeting involved.
+ */
+
+register_activation_hook(
+	__FILE__,
+	function () {
+		// Only ever set once -- reactivating the plugin later shouldn't
+		// restart the 7-day clock from scratch.
+		if ( ! get_option( 'pmt_post_grid_activated_time' ) ) {
+			add_option( 'pmt_post_grid_activated_time', time() );
+		}
+	}
+);
+
+/**
+ * register_activation_hook() above only fires on a genuinely fresh
+ * activation -- it would never run for anyone who already has this
+ * plugin active before this feature shipped (upgrading in place doesn't
+ * re-trigger it). This is the self-healing fallback: the first time
+ * this runs and finds no activation time recorded yet, it sets one to
+ * right now, starting the 7-day countdown from today rather than never
+ * starting at all.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( ! get_option( 'pmt_post_grid_activated_time' ) ) {
+			add_option( 'pmt_post_grid_activated_time', time() );
+		}
+	}
+);
+
+/**
+ * Handles clicks on the notice's three links -- all plain GET requests
+ * with a nonce, no JS/AJAX needed. Runs on 'admin_init' (fires before
+ * any admin page renders), checks for our specific query var, and
+ * redirects back to a clean URL afterward so the action never re-fires
+ * on refresh and the query args don't linger in the address bar.
+ */
+add_action(
+	'admin_init',
+	function () {
+		if ( ! isset( $_GET['pmt_post_grid_review_action'] ) || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$nonce = isset( $_GET['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'pmt_post_grid_review_notice' ) ) {
+			return;
+		}
+
+		$action    = sanitize_text_field( wp_unslash( $_GET['pmt_post_grid_review_action'] ) );
+		$clean_url = remove_query_arg( array( 'pmt_post_grid_review_action', '_wpnonce' ) );
+
+		if ( 'later' === $action ) {
+			// "Nope, maybe later" -- don't dismiss permanently, just push
+			// the 7-day threshold forward by another 30 days.
+			update_option( 'pmt_post_grid_activated_time', time() - ( 7 * DAY_IN_SECONDS ) + ( 30 * DAY_IN_SECONDS ) );
+			wp_safe_redirect( $clean_url );
+			exit;
+		}
+
+		if ( 'dismiss' === $action ) {
+			// "I already did" -- permanently dismissed, no external visit.
+			update_option( 'pmt_post_grid_review_dismissed', 1 );
+			wp_safe_redirect( $clean_url );
+			exit;
+		}
+
+		if ( 'reviewed' === $action ) {
+			// "Ok, you deserve it" -- permanently dismissed (they're
+			// about to go leave a review, no reason to keep asking), then
+			// sent on to the actual WordPress.org review page.
+			update_option( 'pmt_post_grid_review_dismissed', 1 );
+			wp_redirect( 'https://wordpress.org/support/plugin/pmt-post-grid/reviews/#new-post' );
+			exit;
+		}
+	}
+);
+
+add_action(
+	'admin_notices',
+	function () {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		if ( get_option( 'pmt_post_grid_review_dismissed' ) ) {
+			return;
+		}
+
+		$activated_time = (int) get_option( 'pmt_post_grid_activated_time' );
+		if ( ! $activated_time || ( time() - $activated_time ) < ( 7 * DAY_IN_SECONDS ) ) {
+			return;
+		}
+
+		$nonce     = wp_create_nonce( 'pmt_post_grid_review_notice' );
+		$base_url  = remove_query_arg( array( 'pmt_post_grid_review_action', '_wpnonce' ) );
+		$ok_url    = add_query_arg( array( 'pmt_post_grid_review_action' => 'reviewed', '_wpnonce' => $nonce ), $base_url );
+		$later_url = add_query_arg( array( 'pmt_post_grid_review_action' => 'later', '_wpnonce' => $nonce ), $base_url );
+		$done_url  = add_query_arg( array( 'pmt_post_grid_review_action' => 'dismiss', '_wpnonce' => $nonce ), $base_url );
+		?>
+		<div class="notice notice-info">
+			<p>
+				<?php
+				esc_html_e(
+					'Hello! Seems like you have been using Post Grid for Gutenberg and Elementor for more than 7 days -- that\'s awesome! Could you please do us a BIG favor and give it a 5-star rating on WordPress? This would boost our motivation and help us spread the word.',
+					'pmt-post-grid'
+				);
+				?>
+			</p>
+			<p>
+				<a href="<?php echo esc_url( $ok_url ); ?>"><?php esc_html_e( 'Ok, you deserve it', 'pmt-post-grid' ); ?></a>
+				|
+				<a href="<?php echo esc_url( $later_url ); ?>"><?php esc_html_e( 'Nope, maybe later', 'pmt-post-grid' ); ?></a>
+				|
+				<a href="<?php echo esc_url( $done_url ); ?>"><?php esc_html_e( 'I already did', 'pmt-post-grid' ); ?></a>
+			</p>
+		</div>
+		<?php
 	}
 );

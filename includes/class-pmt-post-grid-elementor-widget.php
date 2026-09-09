@@ -87,7 +87,8 @@ if ( ! class_exists( 'PMT_Post_Grid_Elementor_Widget' ) ) {
 			);
 			$wp_categories      = get_categories( array( 'hide_empty' => false ) );
 			foreach ( $wp_categories as $wp_category ) {
-				$categories_control[ (string) $wp_category->term_id ] = $wp_category->name;
+				/* translators: 1: category name, 2: number of posts in that category. */
+				$categories_control[ (string) $wp_category->term_id ] = sprintf( __( '%1$s (%2$s)', 'pmt-post-grid' ), $wp_category->name, number_format_i18n( $wp_category->count ) );
 			}
 
 			$this->add_control(
@@ -347,6 +348,19 @@ if ( ! class_exists( 'PMT_Post_Grid_Elementor_Widget' ) ) {
 				array(
 					'label' => __( 'Meta info', 'pmt-post-grid' ),
 					'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+				)
+			);
+
+			$this->add_control(
+				'showAuthor',
+				array(
+					'label'        => __( 'Show author (avatar + name)', 'pmt-post-grid' ),
+					'type'         => \Elementor\Controls_Manager::SWITCHER,
+					'label_on'     => __( 'Show', 'pmt-post-grid' ),
+					'label_off'    => __( 'Hide', 'pmt-post-grid' ),
+					'return_value' => 'yes',
+					'default'      => 'yes',
+					'description'  => __( 'Always the first item in meta info.', 'pmt-post-grid' ),
 				)
 			);
 
@@ -997,6 +1011,39 @@ if ( ! class_exists( 'PMT_Post_Grid_Elementor_Widget' ) ) {
 			);
 
 			$this->end_controls_section();
+
+			// A dedicated section of its own, right after Typography --
+			// not tucked away at the bottom of another section, so it's
+			// actually discoverable rather than something you'd only
+			// find by accident.
+			$this->start_controls_section(
+				'pmt_section_reset',
+				array(
+					'label' => __( 'Reset', 'pmt-post-grid' ),
+					'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+				)
+			);
+
+			// A BUTTON control just fires a named Backbone event on
+			// Elementor's editor channel when clicked -- it doesn't touch
+			// any setting by itself. block/elementor-editor.js (enqueued
+			// only in the Elementor editor, see the
+			// elementor/editor/after_enqueue_scripts hook below) listens
+			// for that event and resets every control on this widget back
+			// to its default value.
+			$this->add_control(
+				'pmt_reset_settings',
+				array(
+					'type'        => \Elementor\Controls_Manager::BUTTON,
+					'label'       => __( 'Reset all settings', 'pmt-post-grid' ),
+					'text'        => __( 'Reset to default', 'pmt-post-grid' ),
+					'button_type' => 'default',
+					'event'       => 'pmt:post_grid:reset_settings',
+					'description' => __( 'Resets every control on this widget -- Query, Content, Meta info, Layout, Style, and Typography -- back to its default value. This cannot be undone.', 'pmt-post-grid' ),
+				)
+			);
+
+			$this->end_controls_section();
 		}
 
 		protected function render() {
@@ -1069,6 +1116,7 @@ if ( ! class_exists( 'PMT_Post_Grid_Elementor_Widget' ) ) {
 				'postIds'           => $post_ids,
 				'excludePostIds'    => $exclude_post_ids,
 				'orderBy'           => isset( $settings['orderBy'] ) ? $settings['orderBy'] : 'date',
+				'showAuthor'        => isset( $settings['showAuthor'] ) && 'yes' === $settings['showAuthor'],
 				'showDate'          => isset( $settings['showDate'] ) && 'yes' === $settings['showDate'],
 				'showComments'      => isset( $settings['showComments'] ) && 'yes' === $settings['showComments'],
 				'showViews'         => isset( $settings['showViews'] ) && 'yes' === $settings['showViews'],

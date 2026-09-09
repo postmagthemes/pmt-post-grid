@@ -1,10 +1,10 @@
-=== Post Grid for Gutenberg and Elementor ===
+=== Post Grid for Gutenberg and Elementor - Magazine type blocks addons for both ===
 Contributors: postmagthemes
 Tags: gutenberg, elementor, post grid, blocks, widget
 Requires at least: 5.8
 Tested up to: 7.0
 Requires PHP: 7.2
-Stable tag: 2.34.0
+Stable tag: 2.41.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,6 +84,10 @@ Yes -- use the "Specific posts" picker to choose exact posts by title. When any 
 
 Yes -- see "Developer hooks" below.
 
+= What happens to my data if I delete this plugin? =
+
+Deleting the plugin (not just deactivating it) removes everything it stores: its own settings, its view-count tracking, and the short-lived cache used by the live front-end filter. It does not touch any block or widget you've placed in your pages/posts -- that content is yours and stays exactly as it is, so if you reinstall the plugin later, your grids come back too.
+
 == Developer hooks ==
 
 This plugin fires several `apply_filters()` hooks, so themes and other plugins can extend or override its behavior without editing its files directly (changes to plugin files are lost on update; filters aren't).
@@ -152,6 +156,77 @@ Filters the schema.org `ItemList` array before it's serialized to JSON-LD -- add
 4. Widget settings panel (Elementor).
 
 == Changelog ==
+
+= 2.41.0 =
+* Removed the last remaining static inline styles -- the "Post Grid" admin products page (Our Plugins / Our Themes) was built quickly with `style="..."` attributes throughout, which is exactly the pattern flagged and fixed elsewhere in this plugin earlier (the same distinction applies: static values that never vary should be a CSS class, not an inline style). Moved everything into a new dedicated stylesheet, `admin/products-page.css`, enqueued only on that one admin page -- never loaded anywhere else, including the front end. Every remaining inline style in the plugin is now confirmed genuinely dynamic (per-category colors, per-instance CSS custom properties) and can't be a static class.
+
+= 2.40.2 =
+* Found the actual root cause of the block staying under "Widgets": Gutenberg blocks have two separate registrations -- server-side PHP (`register_block_type()`, which 2.40.0/2.40.1 correctly updated) and client-side JS (`wp.blocks.registerBlockType()` in `block/index.js`, which controls what the block inserter UI actually displays). The JS registration had its own hardcoded `category: 'widgets'`, completely overriding the PHP side regardless of how correctly that was configured. Fixed to `category: 'postmagthemes'`, matching the PHP registration. Both the category being registered (PHP, fixed in 2.40.1) and the block being assigned to it (JS, fixed here) were necessary together -- neither alone was sufficient, which is why 2.40.1 alone didn't resolve it.
+
+= 2.40.1 =
+* Fixed the "Post Grid by Postmagthemes" Gutenberg category not actually taking effect (the block still showed under "Widgets" despite 2.40.0's fix). Root cause, confirmed against a real-world plugin doing the same thing correctly: the filter was registered at the default priority, which risks another plugin's own block-categories filter running afterward and rebuilding the array without preserving this addition. Now registered at a very high priority (999999999, so it runs last) and on both the current filter name (`block_categories_all`) and the older, still-supported one (`block_categories`).
+
+= 2.40.0 =
+* Added a "Post Grid by Postmagthemes" category to the Gutenberg block inserter -- the block previously had no explicit category, so it fell back to the generic "Widgets" bucket. Renamed Elementor's matching category from "Postmagthemes" to the same "Post Grid by Postmagthemes" title for consistency (its slug is unchanged, so nothing else needed updating there). Both builders now share the same category slug (`postmagthemes`), so any future block/widget from this plugin can be added to the same category in both places just by referencing that slug.
+
+= 2.39.0 =
+* Added `uninstall.php` -- WordPress's standard, documented mechanism for plugin cleanup, only ever run when a user clicks "Delete" on an already-deactivated plugin (never on simple deactivation). Removes every piece of persistent data this plugin writes: the review-notice options (`pmt_post_grid_activated_time`, `pmt_post_grid_review_dismissed`), the `_pmt_views` view-count meta on every post, and the short-lived per-instance transients used by the live front-end filter. Handles multisite properly (loops every site on the network via `switch_to_blog()`, rather than only cleaning the current site). Deliberately leaves actual block/widget content in posts/pages untouched -- that's the user's own content, not this plugin's internal data.
+
+= 2.38.4 =
+* Moved the category post count to the correct place: the editor's own Category control (both builders, e.g. "Business (12)" when choosing which category to query), not the live front-end filter dropdown visitors see -- reverted that one back to plain names, since that was never the intended location.
+
+= 2.38.3 =
+* The live front-end category filter dropdown now shows each category's post count alongside its name, e.g. "Business (12)" -- uses the `count` property WordPress's `get_categories()` already returns, no extra query needed.
+
+= 2.38.2 =
+* "Our Themes" on the Post Grid admin page now shows only the 8 most recently updated themes, reordered by actual recency (per postmagthemes' real Theme Trac update history) rather than install count. Added a "More themes" button linking to the real WordPress.org author page (`wordpress.org/themes/author/postmagthemes/`) for the full 14.
+
+= 2.38.1 =
+* Added a "Leave a review" admin notice, shown on every wp-admin page (hooked on `admin_notices`, which fires globally regardless of which menu item is open -- not scoped to this plugin's own settings page), once an administrator has had the plugin active for more than 7 days. Three actions, all plain nonce-verified GET links, no JS/AJAX: "Ok, you deserve it" (dismisses permanently, sends to the WordPress.org review page), "Nope, maybe later" (pushes the 7-day threshold forward another 30 days), "I already did" (dismisses permanently, no external visit). Includes a self-healing fallback so existing installs (not just fresh activations) get the countdown started too.
+
+= 2.38.0 =
+* Added a new top-level "Post Grid" admin menu page showing postmagthemes' other WordPress.org products -- "Our Plugins" (PostmagThemes Demo Import, WP Theme Statistic) and "Our Themes" (all 14 published theme, with screenshots). Every name, link, and install count is real, sourced directly from postmagthemes' actual WordPress.org profile, not placeholder content.
+
+= 2.37.2 =
+* Fixed "Show author" being missing from "Reset all settings" in both builders -- the toggle was fully wired up when added in 2.37.0, but the two hand-maintained reset-defaults maps (Gutenberg's `PMT_DEFAULT_ATTRIBUTES`, Elementor's `getElementorDefaults()`) were never updated to include it. Audited both maps against every actual control/attribute to confirm this was the only gap.
+
+= 2.37.1 =
+* Fixed the author avatar sitting visibly lower than the date/comments/views icons in meta info. The 2.37.0 fix only handled alignment *inside* the author item (avatar vs. its own text) -- it missed that `.pmt-extra-info` (the outer row all meta items share) had no `align-items` set at all, defaulting to `stretch`. Every item stretched to match the tallest sibling (now the 20px avatar), but each item's own content stayed wherever it naturally sat within that stretched box rather than centering against its siblings. Added `align-items: center` to `.pmt-extra-info` itself, both files.
+
+= 2.37.0 =
+* Added author (avatar + name, linked to the author's archive) as a new meta info item, in both builders -- always the first item in meta info, ahead of date/comments/views/reading time. New "Show author" toggle, positioned first in the Meta info panel/section, default on. Uses WordPress's own `get_avatar()`, so it respects whatever Gravatar/avatar setup is already configured site-wide.
+
+= 2.36.1 =
+* Changed view-tracking to match the Pro version's implementation exactly: cookie-based de-duplication (once per visitor per post per day) instead of the transient+IP/UA-fingerprint approach from 2.36.0; read-then-write increment instead of an atomic SQL `UPDATE`; own tracking (`_pmt_views`) now checked *first* in `pmt_post_grid_get_views()`, with third-party plugin keys as the fallback (previously the reverse); and adopted Pro's fuller bot-signature list (19 patterns, including Slack/Discord/headless-browser bots, vs. 8 previously).
+
+= 2.36.0 =
+* Added a genuine view-counting mechanism -- previously "Show views" only *read* from common view-count meta keys, with nothing in the plugin actually incrementing any of them (no theme edits needed here, since this hooks into WordPress's own `template_redirect` action rather than a template file). Writes to its own dedicated `_pmt_views` meta key, which is deliberately the lowest-priority key `pmt_post_grid_get_views()` checks -- so if a dedicated view-counter plugin is already active and tracking one of the other recognized keys, that count is what displays; this just runs harmlessly in the background as a fallback for sites with no other view tracking at all. Includes real safeguards: only counts genuine single-post visits (never pages/previews/admin), skips logged-in staff (`edit_posts` capability) so the site's own authors don't inflate their own counts, filters a handful of common bot/crawler user agents, de-duplicates by visitor for one hour via a transient so refreshes don't each count as a new view, and increments via a single atomic SQL `UPDATE` rather than read-then-write, avoiding a race condition where near-simultaneous visitors could lose an increment.
+
+= 2.35.2 =
+* Fixed a real race condition in the Elementor "Reset all settings" button: the listener was only ever bound inside a `$(window).on('elementor:init', ...)` handler, which permanently misses the event if `elementor:init` had already fired before this script loaded (script load order isn't guaranteed relative to when Elementor finishes its own init -- this can shift with any WordPress/Elementor update). The button would render and be clickable, but silently do nothing, since the listener that should have caught its event was never actually registered. Now checks synchronously whether Elementor has already initialized and binds immediately in that case, falling back to the event listener only if it genuinely hasn't initialized yet.
+
+= 2.35.1 =
+* Removed Beaver Builder support (added in 2.35.0) -- back to Gutenberg and Elementor only.
+
+= 2.35.0 =
+* Moved the Elementor "Reset all settings" button out of the bottom of the Typography section into its own dedicated "Reset" section, right after Typography -- it was easy to miss buried at the end of an unrelated section. Gutenberg's placement (end of the Typography panel) is unchanged, since its own panel structure already makes it reasonably discoverable there.
+
+= 2.34.4 =
+* Fixed the real root cause of the Elementor reset button: it was updating the underlying settings correctly (panel controls showed the new values), but doing so by mutating the raw Backbone settings model directly -- which silently skips Elementor's live-preview refresh, undo/redo history, and the "document modified" flag that enables the Publish/Update button. Switched to Elementor's documented Commands API (`$e.run('document/elements/settings', {...})`), the same command real user edits go through, so the reset now correctly updates the live preview and enables Publish/Update, and the reset actually persists on save. Removed the manual repeater-collection reset workaround from 2.34.2/2.34.3 -- no longer needed, since the Commands API handles all setting types (including repeaters) the same way the real UI does.
+
+= 2.34.3 =
+* Added diagnostic console logging throughout the Elementor "Reset all settings" script (`block/elementor-editor.js`) -- every step now logs what it found or why it's aborting, and the actual reset is wrapped in try/catch so a real error is now clearly attributable to this script rather than indistinguishable from unrelated console noise (e.g. Elementor's own AI/Cloud-Kit background requests). Console-only, no visible behavior change if it was already working.
+
+= 2.34.2 =
+* Added a "Reset all settings to default" button to the bottom of the Typography panel/section, in **both** builders:
+  * **Gutenberg**: a plain button + confirmation prompt that calls `setAttributes()` with every attribute's registered default in one go -- straightforward, since Gutenberg attributes are just React state.
+  * **Elementor**: a BUTTON control firing a Backbone event, handled by new editor-only JS (`block/elementor-editor.js`, never loaded on the front end) using Elementor's Container API. Repeater controls (`layoutOrder`, `layoutOrderDesign3`) are reset via their own nested Backbone Collection specifically, not just the parent settings model -- Elementor repeaters maintain their rows separately from the main settings, so a blanket reset on the parent alone doesn't reliably refresh the repeater's own view.
+  * Every default value in both reset maps was cross-checked line-by-line against the actual PHP-registered defaults (shared PHP defaults, Gutenberg's attribute schema, Elementor's control defaults) -- all match exactly.
+
+= 2.34.1 =
+* Trimmed the bundled Font Awesome stylesheet down to only the 4 icons this plugin actually uses (calendar, comment, eye, clock) -- cuts `fontawesome.css` from ~83KB to under 1KB.
+* Removed unused solid/brands/v4-compatibility webfont files from the package; only the regular-weight font actually used by the plugin ships now.
+* Fixed the `<time>` element's `datetime` attribute to use a machine-readable ISO 8601 date instead of the human-formatted display date.
 
 = 2.34.0 =
 * Added two independent toggles (both builders), in the Layout panel/section right after the Design dropdown: "Show sort filter" and "Show category filter" -- lets you hide either (or both) of the live front-end dropdowns without disabling the other. Both still respect the existing rule of hiding automatically when Specific posts is active.

@@ -37,6 +37,69 @@
 	var DEFAULT_LAYOUT_ORDER = ['image', 'badge', 'title', 'excerpt', 'tags'];
 	var DEFAULT_LAYOUT_ORDER_DESIGN3 = ['badge', 'title', 'excerpt', 'tags'];
 
+	// Used by the "Reset all settings" button at the bottom of the
+	// Typography panel. Hand-kept in sync with the 'default' values in
+	// this block's attribute schema (register_block_type() in
+	// pmt-post-grid.php) -- if a default ever changes there, this needs
+	// updating too. Deliberately excludes 'align' (block placement, not
+	// a widget setting) -- everything else the panels expose is here.
+	var PMT_DEFAULT_ATTRIBUTES = {
+		columns: 2,
+		design: 'design_1',
+		postsToShow: 4,
+		category: '',
+		categoryLabel: 'All categories',
+		postIds: [],
+		author: '',
+		excludePostIds: [],
+		orderBy: 'date',
+		showAuthor: true,
+		showDate: true,
+		showComments: true,
+		showViews: true,
+		showReadingTime: true,
+		showCategoryBadge: true,
+		showImage: true,
+		showExcerpt: true,
+		excerptLength: 20,
+		showTags: false,
+		contentAlign: 'left',
+		titleTag: 'h3',
+		columnMargin: 15,
+		rowMargin: 15,
+		imageBorderRadius: 10,
+		boxShadowHOffset: 0,
+		boxShadowVOffset: 2,
+		boxShadowBlur: 12,
+		boxShadowSpread: 0,
+		boxShadowColor: '#000000',
+		boxShadowOpacity: 0.09,
+		boxShadowInset: false,
+		borderWidth: 0,
+		borderStyle: 'solid',
+		borderColor: 'grey',
+		borderRadiusTop: 10,
+		borderRadiusBottom: 10,
+		titleFontSize: 20,
+		titleFontSizeScaleB: 75,
+		showMainTitle: false,
+		mainTitleText: '',
+		mainTitleTag: 'h2',
+		showReadMore: true,
+		readMoreText: 'Read More',
+		layoutOrder: ['image', 'badge', 'title', 'excerpt', 'tags'],
+		design3PostsToShow: 3,
+		design3AlternateImage: false,
+		layoutOrderDesign3: ['badge', 'title', 'excerpt', 'tags'],
+		relatedPostsSectionTitle: 'Related Posts',
+		showRelatedImage: true,
+		showRelatedTitle: true,
+		relatedTitleScale: 80,
+		showOrderByDropdown: true,
+		showCategoryDropdown: true,
+		showStructuredData: true,
+	};
+
 	var LAYOUT_ORDER_LABELS = {
 		image: __('Featured image', 'pmt-post-grid'),
 		badge: __('Category badge', 'pmt-post-grid'),
@@ -64,7 +127,7 @@
 		title: __('Post Grid (Postmagthemes)', 'pmt-post-grid'),
 		description: __('A live post grid, rendered by PHP with its own namespaced (.pmt-*) markup and styling.', 'pmt-post-grid'),
 		icon: 'grid-view',
-		category: 'widgets',
+		category: 'postmagthemes',
 		supports: {
 			align: ['wide', 'full'],
 		},
@@ -138,7 +201,7 @@
 
 			var categoryOptions = [{ label: __('All categories', 'pmt-post-grid'), value: '' }].concat(
 				categories.map(function (cat) {
-					return { label: cat.name, value: String(cat.id) };
+					return { label: cat.name + ' (' + cat.count + ')', value: String(cat.id) };
 				})
 			);
 
@@ -440,6 +503,14 @@
 					el(
 						PanelBody,
 						{ title: __('Meta info', 'pmt-post-grid'), initialOpen: false },
+						el(ToggleControl, {
+							label: __('Show author (avatar + name)', 'pmt-post-grid'),
+							checked: attributes.showAuthor,
+							onChange: function (val) {
+								setAttributes({ showAuthor: val });
+							},
+							help: __('Always the first item in meta info.', 'pmt-post-grid'),
+						}),
 						el(ToggleControl, {
 							label: __('Show date', 'pmt-post-grid'),
 							checked: attributes.showDate,
@@ -925,7 +996,22 @@
 								max: 150,
 								help: __('Default: 80% -- e.g. if the row\'s title is 20px, related post titles are 16px automatically.', 'pmt-post-grid'),
 							})
-							: null
+							: null,
+						el(Button, {
+							variant: 'secondary',
+							isDestructive: true,
+							style: { marginTop: '16px' },
+							onClick: function () {
+								if (window.confirm(__('Reset all settings to default? This cannot be undone.', 'pmt-post-grid'))) {
+									setAttributes(PMT_DEFAULT_ATTRIBUTES);
+								}
+							},
+						}, __('Reset to default', 'pmt-post-grid')),
+						el(
+							'p',
+							{ style: { fontSize: '12px', color: '#757575', marginTop: '6px' } },
+							__('Resets every control on this block -- Query, Content, Meta info, Layout, Style, and Typography -- back to its default value. This cannot be undone.', 'pmt-post-grid')
+						)
 					)
 				),
 				el(

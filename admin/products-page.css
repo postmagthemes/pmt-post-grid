@@ -1,17 +1,23 @@
 /**
  * Styles for the "Post Grid" admin products page only (see
- * pmt_post_grid_render_products_page() in pmt-post-grid.php). Enqueued
+ * pmtpofob_post_grid_render_products_page() in pmtpofob-post-grid.php). Enqueued
  * exclusively on that one admin screen -- never loaded anywhere else.
+ *
+ * Text-only by design -- no plugin icons or theme screenshots. Remote
+ * images (even WordPress.org's own asset CDN) aren't bundled with the
+ * plugin, and Plugin Check's offloaded-content rule disallows relying
+ * on any remote host for images/scripts/styles, regardless of whose
+ * server it is.
  */
 
-.pmt-products-columns {
+.pmtpofob-products-columns {
 	display: flex;
 	gap: 24px;
 	flex-wrap: wrap;
 	margin-top: 20px;
 }
 
-.pmt-products-column {
+.pmtpofob-products-column {
 	min-width: 320px;
 	background: #fff;
 	border: 1px solid #dcdcde;
@@ -19,84 +25,48 @@
 	padding: 20px;
 }
 
-.pmt-products-column h2 {
+.pmtpofob-products-column h2 {
 	margin-top: 0;
 }
 
-.pmt-products-column--plugins {
+.pmtpofob-products-column--plugins {
 	flex: 1;
 }
 
-.pmt-products-column--themes {
-	flex: 2;
-	min-width: 400px;
+.pmtpofob-products-column--themes {
+	flex: 1;
 }
 
-.pmt-plugin-item {
-	display: flex;
-	gap: 12px;
-	align-items: flex-start;
+.pmtpofob-plugin-item {
 	padding: 14px 0;
 	border-top: 1px solid #f0f0f1;
 }
 
-.pmt-plugin-item img {
-	border-radius: 6px;
-	flex-shrink: 0;
-}
-
-.pmt-plugin-item__name {
+.pmtpofob-plugin-item__name {
 	font-weight: 600;
 	font-size: 14px;
 	text-decoration: none;
+	display: inline-block;
 }
 
-.pmt-plugin-item__desc {
+.pmtpofob-plugin-item__desc {
 	margin: 4px 0;
 	color: #646970;
 }
 
-.pmt-installs {
+.pmtpofob-installs {
+	display: block;
 	font-size: 12px;
 	color: #8c8f94;
+	margin-top: 2px;
 }
 
-.pmt-themes-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-	gap: 16px;
-}
-
-.pmt-theme-item {
-	text-decoration: none;
-	color: inherit;
-	display: block;
-}
-
-.pmt-theme-item__image {
-	width: 100%;
-	height: auto;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	display: block;
-	margin-bottom: 6px;
-}
-
-.pmt-theme-item__name {
-	font-size: 13px;
-	display: block;
-}
-
-.pmt-theme-item .pmt-installs {
-	font-size: 11px;
-}
-
-.pmt-more-themes {
+.pmtpofob-more-themes {
 	margin-top: 18px;
 	margin-bottom: 0;
 }
 
-.pmt-products-footer {
+.pmtpofob-products-footer {
 	margin-top: 24px;
 	color: #646970;
 }

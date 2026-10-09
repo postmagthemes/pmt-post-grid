@@ -2,7 +2,7 @@
  * Elementor editor only -- never loaded on the front end. Listens for the
  * 'pmt:post_grid:reset_settings' event fired by the BUTTON control at the
  * bottom of the widget's Typography section (see register_controls() in
- * class-pmt-post-grid-elementor-widget.php) and resets every one of this
+ * class-pmtpofob-post-grid-elementor-widget.php) and resets every one of this
  * widget's own settings back to its registered PHP default in one go.
  *
  * Applies the reset via Elementor's documented Commands API
@@ -99,24 +99,24 @@
 	function getEditedContainer() {
 		var panelView = window.elementor && window.elementor.getPanelView ? window.elementor.getPanelView() : null;
 		if ( ! panelView ) {
-			console.warn( '[pmt-post-grid reset] window.elementor.getPanelView() returned nothing.' );
+			console.warn( '[pmtpofob-post-grid reset] window.elementor.getPanelView() returned nothing.' );
 			return null;
 		}
 
 		var pageView = panelView.getCurrentPageView ? panelView.getCurrentPageView() : null;
 		if ( ! pageView ) {
-			console.warn( '[pmt-post-grid reset] panelView.getCurrentPageView() returned nothing.' );
+			console.warn( '[pmtpofob-post-grid reset] panelView.getCurrentPageView() returned nothing.' );
 			return null;
 		}
 
 		var editedView = pageView.getOption ? pageView.getOption( 'editedElementView' ) : null;
 		if ( ! editedView ) {
-			console.warn( '[pmt-post-grid reset] pageView.getOption( "editedElementView" ) returned nothing. pageView was:', pageView );
+			console.warn( '[pmtpofob-post-grid reset] pageView.getOption( "editedElementView" ) returned nothing. pageView was:', pageView );
 			return null;
 		}
 
 		if ( typeof editedView.getContainer !== 'function' ) {
-			console.warn( '[pmt-post-grid reset] editedElementView has no getContainer() method. editedView was:', editedView );
+			console.warn( '[pmtpofob-post-grid reset] editedElementView has no getContainer() method. editedView was:', editedView );
 			return null;
 		}
 
@@ -124,20 +124,20 @@
 	}
 
 	function onResetSettings() {
-		console.log( '[pmt-post-grid reset] Reset button event received.' );
+		console.log( '[pmtpofob-post-grid reset] Reset button event received.' );
 
 		var container = getEditedContainer();
 
 		if ( ! container ) {
-			console.warn( '[pmt-post-grid reset] Aborting: no container found (see warning above for which step failed).' );
+			console.warn( '[pmtpofob-post-grid reset] Aborting: no container found (see warning above for which step failed).' );
 			return;
 		}
 
 		var widgetType = container.model ? container.model.get( 'widgetType' ) : undefined;
-		console.log( '[pmt-post-grid reset] Found container for widgetType:', widgetType );
+		console.log( '[pmtpofob-post-grid reset] Found container for widgetType:', widgetType );
 
-		if ( 'pmt-post-grid' !== widgetType ) {
-			console.warn( '[pmt-post-grid reset] Aborting: widgetType was "' + widgetType + '", expected "pmt-post-grid". The found container is probably the wrong element -- wrong panel page, or a parent/child container instead of this widget\'s own.' );
+		if ( 'pmt-postgrid-block-editor-elementor-support' !== widgetType ) {
+			console.warn( '[pmtpofob-post-grid reset] Aborting: widgetType was "' + widgetType + '", expected "pmt-postgrid-block-editor-elementor-support". The found container is probably the wrong element -- wrong panel page, or a parent/child container instead of this widget\'s own.' );
 			return;
 		}
 
@@ -146,7 +146,7 @@
 			: 'Reset all settings to default? This cannot be undone.';
 
 		if ( ! window.confirm( confirmText ) ) {
-			console.log( '[pmt-post-grid reset] User cancelled the confirm dialog.' );
+			console.log( '[pmtpofob-post-grid reset] User cancelled the confirm dialog.' );
 			return;
 		}
 
@@ -167,34 +167,34 @@
 					container: container,
 					settings: defaults,
 				} );
-				console.log( '[pmt-post-grid reset] Applied via $e.run( "document/elements/settings" ).' );
+				console.log( '[pmtpofob-post-grid reset] Applied via $e.run( "document/elements/settings" ).' );
 			} else {
 				// Fallback for a very old Elementor without the Commands
 				// API -- still updates the underlying data correctly, but
 				// without the live-preview/history/save-button side
 				// effects the command above provides.
-				console.warn( '[pmt-post-grid reset] window.$e.run is not available -- falling back to a direct settings.set(). Live preview and the Publish button may not update.' );
+				console.warn( '[pmtpofob-post-grid reset] window.$e.run is not available -- falling back to a direct settings.set(). Live preview and the Publish button may not update.' );
 				container.settings.set( defaults );
 			}
 
-			console.log( '[pmt-post-grid reset] New values:', container.settings.toJSON() );
+			console.log( '[pmtpofob-post-grid reset] New values:', container.settings.toJSON() );
 
 			var panelView = window.elementor.getPanelView();
 			if ( panelView && panelView.getCurrentPageView ) {
 				panelView.getCurrentPageView().render();
-				console.log( '[pmt-post-grid reset] Panel page re-rendered.' );
+				console.log( '[pmtpofob-post-grid reset] Panel page re-rendered.' );
 			}
 
-			console.log( '[pmt-post-grid reset] Done.' );
+			console.log( '[pmtpofob-post-grid reset] Done.' );
 		} catch ( err ) {
-			console.error( '[pmt-post-grid reset] Threw an error while resetting:', err );
+			console.error( '[pmtpofob-post-grid reset] Threw an error while resetting:', err );
 		}
 	}
 
 	function bindResetListener() {
 		if ( window.elementor && window.elementor.channels && window.elementor.channels.editor ) {
 			window.elementor.channels.editor.on( 'pmt:post_grid:reset_settings', onResetSettings );
-			console.log( '[pmt-post-grid reset] Listener bound.' );
+			console.log( '[pmtpofob-post-grid reset] Listener bound.' );
 			return true;
 		}
 		return false;

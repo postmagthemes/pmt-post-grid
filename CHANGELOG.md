@@ -1,10 +1,417 @@
 # Changelog
 
-Detailed development history for Post Grid for Gutenberg and Elementor.
-This is the full technical changelog (every fix, its root cause, and the
-reasoning behind each change) -- kept for maintainers/contributors.
+Detailed development history for PMT PostGrid for block editor with
+elementor support. This is the full technical changelog (every fix,
+its root cause, and the reasoning behind each change) -- kept for
+maintainers/contributors.
 
 For the condensed, user-facing version history, see `readme.txt`.
+
+---
+
+## 2.42.1 additions
+
+* Renamed the plugin: "Post Grid Block and Addon for the Block Editor
+  and Elementor" (was "...for Gutenberg and Elementor"). WordPress.org's
+  plugin upload validator rejected the previous name -- "gutenberg" is
+  a restricted term and cannot appear in a plugin's name/permalink at
+  all, regardless of context; this is enforced by their own upload
+  handler, not a style guideline. Updated consistently everywhere the
+  name appears: the PHP `Plugin Name:` header, the readme title and
+  description, the admin menu title, and the admin page heading --
+  deliberately including the admin menu title this time, which a
+  similar earlier rename (2.41.x) had left alone by request; with
+  "gutenberg" now a confirmed, enforced problem word rather than a
+  style preference, leaving it in internal UI text as well would have
+  been inconsistent with the reason for the rename in the first place.
+
+## 2.42.0 additions
+
+* Removed the "Leave a review" admin notice entirely (added in 2.38.1)
+  -- the activation hook, its self-healing `admin_init` fallback, the
+  review-action handler (all three link actions), the
+  `allowed_redirect_hosts` filter it needed, and the notice itself are
+  all gone. Initially kept `uninstall.php`'s cleanup of the two options
+  it used (`pmt_post_grid_activated_time`, `pmt_post_grid_review_dismissed`)
+  as a safety net for any site that had already run the feature -- then
+  removed that too, on confirmation that this plugin had never actually
+  been distributed with the feature active, so there was no real
+  installed base to account for and the legacy-cleanup code was
+  unnecessary complexity for a scenario that never happened.
+
+## 2.41.0 - 2.41.3 additions
+
+* **Removed the last remaining static inline styles.** The "Post Grid"
+  admin products page (Our Plugins / Our Themes) had been built quickly
+  with `style="..."` attributes throughout -- the exact anti-pattern
+  already fixed elsewhere in this plugin earlier (2.28.1/2.28.2): static
+  values that never vary per-request should be a CSS class, not an
+  inline style. Moved everything into a new dedicated stylesheet,
+  `admin/products-page.css`, enqueued only on that one admin page (its
+  exact hook suffix checked via `admin_enqueue_scripts`) -- never loaded
+  anywhere else, including the front end. Audited the whole file
+  afterward: every remaining inline style is confirmed genuinely
+  dynamic (per-category colors, per-instance CSS custom properties) and
+  can't be a static class.
+* **Late escaping.** A WordPress.Security.EscapeOutput.OutputNotEscaped
+  PHPCS finding at the date/time output turned out to be a real,
+  fixable instance of "escape early" (a variable pre-escaped at
+  assignment, then echoed later) rather than a false positive -- found
+  in three places: the isolated date/time block, and the same pattern
+  duplicated inside the `$meta_items[]`-array-building code for both
+  the 'row' and 'full' card variants. Initially assumed the array-based
+  occurrences couldn't be improved (the *composite* imploded string
+  genuinely can't be wrapped in a single `esc_html()` without mangling
+  its intentional markup) -- but that reasoning didn't actually apply
+  to the *individual pieces* feeding into it. Moved `esc_attr()`/
+  `esc_html()` inline, directly around `get_the_date('c')`/
+  `get_the_date()`, in all three locations. Not a security fix (the
+  data was already safe either way, just pre-escaped rather than
+  late-escaped) -- but the correct, current WordPress coding-standards
+  pattern, and easier to audit.
+* **Removed all remote image references** from the admin products page
+  -- fixed a PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+  finding. Plugin icons (`ps.w.org`) and theme screenshots
+  (WordPress.org's own asset CDN, `i0.wp.com`) are gone entirely, along
+  with the now-unused `icon` data key. "Offloading" is disallowed
+  regardless of whose server it is, including WordPress.org's own, and
+  there was no way to fetch and bundle real third-party image assets as
+  part of this plugin's own build process -- so both sections (Our
+  Plugins, Our Themes) became text-only: name, description, install
+  count, link. "Our Themes" restructured from an image grid to a plain
+  list matching "Our Plugins"; CSS simplified to match (removed every
+  now-dead image-related class).
+* **`wp_redirect()` -> `wp_safe_redirect()`** for the "Leave a review"
+  notice's external redirect (the "Ok, you deserve it" action, sending
+  the admin to the actual WordPress.org review page). Added
+  `wordpress.org` to `allowed_redirect_hosts` at the same time --
+  `wp_safe_redirect()` silently blocks any off-site redirect not on
+  that list by default, which would have quietly broken the intended
+  "go leave a review" flow rather than just being a cosmetic change.
+* **Documented, not "fixed," a `uninstall.php` caching finding.**
+  PluginCheck flagged both bulk-delete queries (`_pmt_views` postmeta,
+  `pmt_grid_*` transients) for not using `wp_cache_get()`/
+  `wp_cache_set()`/`wp_cache_delete()`. Deliberately did not add those
+  calls -- they're built for single specific cache keys, not
+  pattern/WHERE-based bulk deletes, and this file runs exactly once,
+  ever, immediately before the data it touches ceases to exist
+  entirely; there is no "next read" a cache could ever serve. Added the
+  missing `NoCaching` sub-check to the existing `phpcs:ignore`
+  annotations on both lines instead, with the reasoning inline as a
+  comment.
+
+## 2.40.0 - 2.40.2 additions
+
+* **Added a "Post Grid by Postmagthemes" category to the Gutenberg
+  block inserter** -- the block had no explicit category at all
+  before this, so it fell back to the generic "Widgets" bucket.
+  Renamed Elementor's existing "Postmagthemes" category to match (its
+  slug, `postmagthemes`, was left unchanged, so nothing else needed
+  updating on that side). Intent: both builders now share one category
+  slug, so any future block/widget from this plugin can join the same
+  category in both places just by referencing it.
+* This took three attempts to actually land, and each one taught
+  something real about how Gutenberg/Elementor handle categories:
+  1. **First attempt (2.40.0)**: registered the category via
+     `block_categories_all` and set `'category' => 'postmagthemes'` on
+     `register_block_type()`. Looked correct, didn't work -- the block
+     still showed under Widgets. Confirmed via user-reported console
+     diagnostics that the block inserter's category UI wasn't even
+     recognizing the new category as existing.
+  2. **Second attempt (2.40.1)**: found (by reading a real, working
+     reference plugin's source) that the filter needs a very high
+     priority (999999999, so it runs after any other plugin's own
+     category-filter callback that might rebuild the array without
+     preserving earlier additions) and should hook *both* the current
+     filter name (`block_categories_all`) and the older, still-
+     supported one (`block_categories`). Still didn't work.
+  3. **Third attempt (2.40.2), actual root cause**: Gutenberg blocks
+     have two entirely separate registrations -- server-side PHP
+     (`register_block_type()`, which was correctly updated in both
+     prior attempts) and client-side JS
+     (`wp.blocks.registerBlockType()` in `block/index.js`, which is
+     what the block inserter UI actually reads for category placement).
+     The JS side had its own hardcoded `category: 'widgets'`,
+     completely overriding the PHP side regardless of how correctly
+     that was configured. Fixed to `category: 'postmagthemes'`. Both
+     halves -- the category being registered (PHP) and the block being
+     assigned to it (JS) -- were necessary together; neither alone was
+     sufficient, which is exactly why the first two attempts didn't
+     resolve it despite being individually correct.
+
+## 2.39.0 additions
+
+* Added `uninstall.php` -- WordPress's standard, documented mechanism
+  for plugin cleanup, only ever run when a user clicks "Delete" on an
+  already-deactivated plugin (never on simple deactivation). Removes
+  every piece of persistent data this plugin writes: the review-notice
+  options (`pmt_post_grid_activated_time`, `pmt_post_grid_review_dismissed`),
+  the `_pmt_views` view-count meta on every post, and the short-lived
+  per-instance transients used by the live front-end filter. Handles
+  multisite properly (loops every site on the network via
+  `switch_to_blog()`/`restore_current_blog()`, rather than only
+  cleaning the current site). Deliberately leaves actual block/widget
+  content in posts/pages untouched -- that's the user's own content,
+  not this plugin's internal data, and survives a later reinstall.
+
+## 2.38.0 - 2.38.4 additions
+
+* **Added a "Post Grid" top-level admin menu page** showing
+  postmagthemes' other WordPress.org products -- "Our Plugins"
+  (PostmagThemes Demo Import, WP Theme Statistic) and "Our Themes"
+  (originally all 14 published themes with screenshots, later trimmed
+  to the 8 most recently updated with a "More themes" link to the real
+  author page -- see 2.38.2). Every name, link, and install count
+  sourced directly from postmagthemes' actual WordPress.org profile at
+  build time, not placeholder content.
+* **Added a "Leave a review" admin notice** (2.38.1), shown on every
+  wp-admin page -- hooked on `admin_notices`, which WordPress fires
+  globally regardless of which menu item is open, not scoped to this
+  plugin's own settings screen -- once an administrator has had the
+  plugin active for more than 7 days. Three actions, all plain
+  nonce-verified GET links handled on `admin_init`, no JS/AJAX: "Ok,
+  you deserve it" (dismisses permanently, redirects to the WordPress.org
+  review page), "Nope, maybe later" (pushes the 7-day threshold forward
+  another 30 days), "I already did" (dismisses permanently, no external
+  visit). Includes a self-healing `admin_init` fallback so existing
+  installs (not just fresh activations via `register_activation_hook`)
+  get the countdown started too, rather than never triggering at all.
+* **2.38.2**: "Our Themes" reordered by actual recency (checked against
+  postmagthemes' real Theme Trac update history, not just install
+  count) and trimmed to the top 8, with a "More themes" button to the
+  real `wordpress.org/themes/author/postmagthemes/` page for the rest.
+* **2.38.3/2.38.4**: the live front-end category filter dropdown
+  briefly gained post counts next to each name (e.g. "Business (12)"),
+  then that was reverted and moved to the *correct* location -- the
+  editor's own Category control in both builders, which is what was
+  actually meant by "show the count in the dropdown" the whole time.
+  Extensive back-and-forth debugging (OPcache suspected, ruled out;
+  duplicate-plugin suspected, ruled out) before the actual
+  miscommunication was found: two different dropdowns were being
+  discussed without realizing it.
+
+## 2.37.0 - 2.37.2 additions
+
+* Added **author meta** (avatar + name, linked to the author's archive)
+  as a new meta-info item, in both builders -- always the first item,
+  ahead of date/comments/views/reading time. New "Show author" toggle,
+  positioned first in the Meta info panel/section, default on. Uses
+  WordPress's own `get_avatar()`, so it respects whatever Gravatar/
+  avatar setup is already configured site-wide.
+* **2.37.1**: fixed the author avatar sitting visibly lower than the
+  other meta-info icons. The first alignment fix only handled the
+  author item's *own* internal alignment (avatar vs. its own text) --
+  missed that `.pmt-extra-info` (the outer row every meta item shares
+  as a sibling) had no `align-items` set at all, defaulting to
+  `stretch`. Every item stretched to match the tallest sibling (now the
+  20px avatar), but each item's own content stayed wherever it
+  naturally sat within that stretched box rather than centering against
+  its siblings. Added `align-items: center` to `.pmt-extra-info`
+  itself, in both CSS files.
+* **2.37.2**: fixed "Show author" missing entirely from "Reset all
+  settings" in both builders. The toggle was fully wired up when added,
+  but the two hand-maintained reset-defaults maps (Gutenberg's
+  `PMT_DEFAULT_ATTRIBUTES`, Elementor's `getElementorDefaults()`) were
+  never updated to include it -- an easy category of gap to
+  reintroduce every time a new setting is added. Audited both maps
+  against every actual control/attribute afterward to confirm this was
+  the only gap, rather than just patching the one reported case.
+
+## 2.36.0 - 2.36.1 additions
+
+* **Added genuine view-count tracking** -- previously "Show views" only
+  *read* from common view-count meta keys, with nothing in the plugin
+  actually incrementing any of them. Hooks into WordPress's own
+  `template_redirect` action (no theme edits needed). Writes to its own
+  `_pmt_views` meta key. Real safeguards: only counts genuine
+  single-post visits (never pages/previews/admin), skips logged-in
+  staff (`edit_posts` capability), filters common bot/crawler user
+  agents, de-duplicates per visitor, and increments atomically.
+* **2.36.1**: on request, rewritten to match the Pro version's
+  implementation exactly, trading away some of the above for
+  consistency between the two plugins: cookie-based de-duplication
+  (once per visitor per post per day) instead of the original
+  transient+IP/UA-fingerprint approach; read-then-write increment
+  instead of an atomic SQL `UPDATE` (reintroducing a narrow race
+  condition on high-traffic posts, accepted deliberately for parity);
+  own tracking (`_pmt_views`) now checked *first* in
+  `pmt_post_grid_get_views()`, with third-party plugin keys as the
+  fallback (previously the reverse); and adopted Pro's fuller
+  bot-signature list (19 patterns vs. 8).
+
+## 2.34.2 - 2.35.2 additions: the Elementor "Reset all settings" saga
+
+* **2.34.2**: added a "Reset all settings to default" button to both
+  builders. Gutenberg: straightforward, `setAttributes()` with every
+  attribute's registered default. Elementor: far more involved, since
+  Elementor has no native "reset a whole widget" button -- built as a
+  BUTTON control firing a Backbone event, handled by new editor-only JS
+  (`block/elementor-editor.js`) using Elementor's Container API.
+* **2.34.3**: the button didn't reliably work; added diagnostic console
+  logging at every step plus try/catch around the actual reset logic,
+  so failures would be clearly attributable to this script rather than
+  indistinguishable from unrelated Elementor console noise.
+* **2.34.4**: found the real root cause -- the reset was mutating
+  `container.settings` (a raw Backbone Model) directly, which updates
+  the underlying data (so the panel's own controls correctly showed the
+  new values) but silently skips Elementor's live-preview refresh,
+  undo/redo history, and the "document modified" flag that enables
+  Publish/Update. Switched to Elementor's documented Commands API
+  (`$e.run('document/elements/settings', {...})`), the same command
+  real user edits go through. This also made the earlier manual
+  repeater-collection reset workaround (added to handle `layoutOrder`/
+  `layoutOrderDesign3` specifically) unnecessary -- the Commands API
+  handles every control type, repeaters included, the same way the
+  real UI does.
+* **2.35.0**: relocated the Elementor button out of the bottom of the
+  Typography section (easy to miss, buried inside an unrelated section)
+  into its own dedicated "Reset" section, right after Typography.
+* **2.35.2**: after the relocation, the button stopped firing at all --
+  not even its confirm() dialog appeared. Root cause: a genuine race
+  condition. The script only ever bound its event listener inside a
+  `$(window).on('elementor:init', ...)` handler, which permanently
+  misses the event if `elementor:init` had already fired before the
+  script loaded (script load order isn't guaranteed relative to
+  Elementor's own init timing, and can shift with any WordPress/
+  Elementor update -- unrelated to the section move itself, which was
+  presumably just what changed the timing enough to expose it). Fixed
+  by checking synchronously whether Elementor has already initialized
+  and binding immediately in that case, falling back to the event
+  listener only if it genuinely hasn't initialized yet.
+* (2.35.1, in between: Beaver Builder support was added then removed in
+  the same session -- see below.)
+
+## 2.35.0 - 2.35.1: Beaver Builder support (added, then removed)
+
+* Added a full Beaver Builder module (Query/Content/Meta info/Layout/
+  Style/Typography tabs), sharing the same `pmt_post_grid_build_markup()`
+  function Gutenberg and Elementor already used, so output stayed
+  identical across all three builders. Used Beaver Builder's native
+  `suggest` field (`fl_as_posts`) for the Specific Posts/Exclude Posts
+  pickers -- a genuine searchable post picker, no custom field needed.
+  Two known simplifications versus Gutenberg/Elementor: "Card element
+  order" wasn't reorderable (Beaver Builder has no repeater field
+  suited to it without a substantial custom build), and no reset
+  button (deferred rather than guessing at another unfamiliar internal
+  API in the same pass as the Elementor reset-button work above).
+* Removed again shortly after, on request -- back to Gutenberg and
+  Elementor only. The module directory and its registration hook were
+  deleted entirely, with a follow-up audit confirming zero lingering
+  references anywhere in the codebase.
+
+## 2.29.0 - 2.34.1 additions
+
+* **2.29.0**: removed the "Order" (ascending/descending) control
+  entirely, both builders -- results are now always descending
+  (newest first, or most-commented first). "Order by" itself is
+  unchanged. Hardcoded to `DESC` in all three designs' queries.
+* **2.30.0**: added a second live front-end dropdown, "Most recent" /
+  "Most commented", alongside the existing category dropdown -- same
+  AJAX mechanism, no page reload. The two dropdowns work together:
+  changing one always includes the other's current value in the
+  request, so switching sort order doesn't reset an active category
+  filter. REST endpoint extended to accept `order_by` alongside
+  `category`.
+* **2.31.0 - 2.32.0**: added **related posts** to Design 3 -- up to 4
+  other posts sharing a row's own category, shown below each row's
+  content. Not part of the reorderable Card element order; fixed
+  position, always last, image before title. Related titles
+  automatically use one heading level below the parent row's own title
+  tag. Several follow-up fixes: related post images not rendering
+  square (a CSS specificity trap -- the general `img {}` rule nested
+  inside `.pmt-thumb-blog.pmt-post-grid-block` outranked the standalone
+  override; moved the override inside the same nested block to win);
+  empty placeholders losing their sizing when the selector was
+  narrowed to `a.pmt-related-post` (reverted to the plain class
+  selector, since empty placeholders are `<div>`s, not `<a>`s); related
+  posts padding up to 4 with empty placeholder slots when fewer are
+  found (matching Design 2's existing pattern for Column B); box-shadow/
+  border/radius extended to related-post cards using the same CSS vars
+  as regular cards, no new controls needed.
+* **2.33.0 - 2.33.4**: a cluster of Design 3 refinements and their
+  follow-up bugs. `min-height: 40px` added to Design 3's row title.
+  Related titles trimmed to 6 words with an ellipsis -- which surfaced
+  a double-escaping bug: `wp_trim_words()` was passed the HTML entity
+  string `'&hellip;'`, but the output gets wrapped in `esc_html()` at
+  every call site, which encodes the `&` and displays literal
+  `&hellip;` text instead of an ellipsis whenever a title actually got
+  trimmed. Fixed by switching to the actual UTF-8 ellipsis character
+  (`'…'`), which `esc_html()` doesn't touch. Then several rounds
+  chasing related-post height/alignment bugs when images are toggled
+  off or a post has no thumbnail: an empty image container rendering
+  regardless of whether that specific post had a thumbnail (fixed to
+  only render when the post actually has one); `align-items: flex-start`
+  added then reverted (wrong for mixed rows -- a title-only item next
+  to siblings with images should still stretch to match them; the real
+  fix was the toggle-off-still-reserving-square-space issue above,
+  after which default `align-items: stretch` already did the right
+  thing); and a final case where empty placeholder slots kept their
+  square `aspect-ratio: 1` shape even with images toggled off entirely,
+  forcing the whole row taller than it needed to be -- fixed by only
+  applying the square treatment to empty placeholders when images are
+  actually being shown.
+* **2.34.0**: added independent "Show sort filter" / "Show category
+  filter" toggles, letting either live dropdown be hidden without
+  disabling the other.
+* **2.34.1**: trimmed the bundled Font Awesome stylesheet down to only
+  the 4 icons actually used (calendar, comment, eye, clock) --
+  `fontawesome.css` from ~83KB to under 1KB -- and removed the unused
+  solid/brands/v4-compatibility webfont files from the package
+  entirely. Also fixed the `<time>` element's `datetime` attribute to
+  use a machine-readable ISO 8601 date instead of the human-formatted
+  display date.
+
+## 2.22.0 - 2.28.2 additions
+
+* **2.22.0 - 2.22.4**: added the live category filter dropdown itself
+  (the first of the two live front-end filters, sort order came later
+  in 2.30.0). Several immediate follow-up fixes: the "Show more" button
+  rendering inside `.pmt-design2-grid` instead of after it (a missing
+  closing `</div>` for `.pmt-design2-col-b`); Design 1's column gap
+  rendering at 2x the row gap even when set equal (columns used
+  padding on both sides as the gutter, so adjacent cards' padding
+  summed together -- switched to the same `calc((100% - (N-1)*gap) / N)`
+  technique already used in Design 2, plus CSS `gap` on the row, so
+  both directions now produce genuinely equal pixel gaps); the category
+  dropdown getting overridden by WP admin's own `.wp-core-ui select`
+  styling in the Gutenberg editor (that selector is more specific than
+  a lone class regardless of load order -- bumped to a two-class
+  selector to reliably win); and default select sizing overrides.
+* **2.23.0 - 2.23.1**: changed the default card element order to image,
+  badge, title, excerpt, tags, with meta info and Read More removed
+  from the reorderable list entirely and always rendering last, fixed
+  position, regardless of how the rest is arranged.
+* **2.24.0 - 2.24.1**: added the Author filter dropdown and the Exclude
+  Posts picker (the inverse of Specific Posts). Fixed a PHP deprecation
+  warning in Elementor's Author list (`'who' => 'authors'` replaced
+  with the officially recommended `'capability' => array('edit_posts')`
+  equivalent; Gutenberg's REST-based author fetch was unaffected, using
+  a different, still-supported parameter).
+* **2.25.0 - 2.25.1**: added **Design 3** itself -- stacked rows, image
+  and content split at the golden ratio, image always its own column.
+  Its own separate "Card element order" control with no "Featured
+  image" option at all (Elementor needed a second, independent
+  REPEATER control for this, since a single repeater can't
+  conditionally hide one row based on another setting's value).
+* **2.26.0 - 2.26.1**: added the five developer filter hooks
+  (`pmt_post_grid_args`, `pmt_post_grid_query_args`,
+  `pmt_post_grid_card_html`, `pmt_post_grid_category_color`,
+  `pmt_post_grid_output`). Fixed the Row margin default inconsistency:
+  Elementor's own control already defaulted to 15, but the shared PHP
+  defaults, Gutenberg's schema, and Elementor's own `render()` fallback
+  all still said 30 -- all four brought in line at 15.
+* **2.27.0**: added JSON-LD structured data (schema.org `ItemList`,
+  minimal `Article` per post), toggleable per instance, with a
+  `pmt_post_grid_structured_data` filter for developers.
+* **2.28.0 - 2.28.2**: replaced the opacity-fade AJAX loading state with
+  real skeleton placeholders shaped per active design. Removed two
+  categories of static inline style flagged as WordPress.org compliance
+  concerns: a repeated `border-radius:var(--pmt-box-radius-top, 0px);`
+  on category badges (moved into the existing CSS classes, fixed once
+  in the shared render function so both builders were covered
+  automatically), and a redundant `style="color:inherit;"` on meta-row
+  links (removed outright -- `.pmt-extra-info a` already set this in
+  the stylesheet).
 
 ---
 

@@ -1,10 +1,10 @@
-=== Post Grid for Gutenberg and Elementor - Magazine type blocks addons for both ===
+=== PMT PostGrid for block editor with elementor support ===
 Contributors: postmagthemes
 Tags: gutenberg, elementor, post grid, blocks, widget
 Requires at least: 5.8
-Tested up to: 7.0
-Requires PHP: 7.2
-Stable tag: 2.41.0
+Requires PHP: 7.4
+Tested up to: 7.1
+Stable tag: 2.42.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,9 @@ A dynamic post grid available as both a Gutenberg block and an Elementor widget,
 
 == Description ==
 
-Post Grid for Gutenberg and Elementor adds a live, configurable post grid to your site -- as a Gutenberg block, an Elementor widget, or both. Both builders share the same underlying render function, so a grid built in one looks identical to a grid built in the other, and every setting behaves the same way regardless of which editor you use.
+PMT PostGrid for block editor with elementor support adds a live, configurable post grid to your site -- as a block-editor block, an Elementor widget, or both. Both builders share the same underlying render function, so a grid built in one looks identical to a grid built in the other, and every setting behaves the same way regardless of which editor you use.
+
+👉 [Plugin Demo](https://contextblog.postmagthemes.com/postgrid/) | [Documentation](https://www.postmagthemes.com/docs/documentation-for-post-grid-plugins/) | [Plugin detail ](https://www.postmagthemes.com/downloads/post-grid-blocks-addons-gutenberg-and-elementor/) | [Get Pro](https://www.postmagthemes.com/downloads/pmt-pro-postgrid-block-editor-with-elementor-support/) 👈
 
 **Three layouts**
 
@@ -47,9 +49,12 @@ Post Grid for Gutenberg and Elementor adds a live, configurable post grid to you
 
 Automatically appears when there are more matching posts than the grid currently displays, linking to the relevant category archive (or your site's main blog page) in a new tab.
 
+[youtube https://www.youtube.com/watch?v=aWe4D-JGUl4]
+
 **Built to stay in sync**
 
 Every setting is wired through shared PHP functions rather than duplicated per builder or per layout, so a fix or feature added in one place applies everywhere -- Design 1, Design 2, Gutenberg, and Elementor can't drift out of sync with each other.
+
 
 == Installation ==
 
@@ -92,61 +97,61 @@ Deleting the plugin (not just deactivating it) removes everything it stores: its
 
 This plugin fires several `apply_filters()` hooks, so themes and other plugins can extend or override its behavior without editing its files directly (changes to plugin files are lost on update; filters aren't).
 
-**`pmt_post_grid_args`**
+**`pmtpofob_post_grid_args`**
 
 Filters the fully-merged settings array before anything is rendered -- runs before the design is even dispatched, so it can change `$args['design']` itself or override any individual setting. Fires once per grid instance, covering every design and both builders.
 
-`apply_filters( 'pmt_post_grid_args', array $args )`
+`apply_filters( 'pmtpofob_post_grid_args', array $args )`
 
-    add_filter( 'pmt_post_grid_args', function( $args ) {
+    add_filter( 'pmtpofob_post_grid_args', function( $args ) {
         $args['showExcerpt'] = true; // Force excerpts on, site-wide.
         return $args;
     } );
 
-**`pmt_post_grid_query_args`**
+**`pmtpofob_post_grid_query_args`**
 
 Filters the `WP_Query` arguments right before the query runs -- add a `meta_query`, a `tax_query`, restrict/expand post types, etc.
 
-`apply_filters( 'pmt_post_grid_query_args', array $query_args, array $args, string $design )`
+`apply_filters( 'pmtpofob_post_grid_query_args', array $query_args, array $args, string $design )`
 
-    add_filter( 'pmt_post_grid_query_args', function( $query_args, $args, $design ) {
+    add_filter( 'pmtpofob_post_grid_query_args', function( $query_args, $args, $design ) {
         $query_args['meta_key']   = 'featured';
         $query_args['meta_value'] = '1';
         return $query_args;
     } );
 
-**`pmt_post_grid_card_html`**
+**`pmtpofob_post_grid_card_html`**
 
 Filters a single rendered card's HTML before it's returned. Fires for every card, in every design.
 
-`apply_filters( 'pmt_post_grid_card_html', string $html, int $post_id, string $variant, array $args )`
+`apply_filters( 'pmtpofob_post_grid_card_html', string $html, int $post_id, string $variant, array $args )`
 
 `$variant` is `'full'` (Design 1 / Design 2's Column A), `'simple'` (Design 2's Column B), or `'row'` (Design 3).
 
-**`pmt_post_grid_category_color`**
+**`pmtpofob_post_grid_category_color`**
 
 Filters the color pair (`array( 'bg' => '#hex', 'fg' => '#hex' )`) used for a category's badge, meta text, tags, and Read more button. Override the auto-rotated palette with your own brand colors.
 
-`apply_filters( 'pmt_post_grid_category_color', array $color, int $term_id )`
+`apply_filters( 'pmtpofob_post_grid_category_color', array $color, int $term_id )`
 
-    add_filter( 'pmt_post_grid_category_color', function( $color, $term_id ) {
+    add_filter( 'pmtpofob_post_grid_category_color', function( $color, $term_id ) {
         if ( 5 === $term_id ) { // Your "News" category's term_id.
             return array( 'bg' => '#FFE0E0', 'fg' => '#8A1F1F' );
         }
         return $color;
     }, 10, 2 );
 
-**`pmt_post_grid_output`**
+**`pmtpofob_post_grid_output`**
 
 Filters the complete rendered output of a grid instance right before it's returned -- the entire thing: wrapper, header, dropdown, every card, Show more button.
 
-`apply_filters( 'pmt_post_grid_output', string $html, array $args, string $design )`
+`apply_filters( 'pmtpofob_post_grid_output', string $html, array $args, string $design )`
 
-**`pmt_post_grid_structured_data`**
+**`pmtpofob_post_grid_structured_data`**
 
 Filters the schema.org `ItemList` array before it's serialized to JSON-LD -- add/remove fields, or return an empty array to suppress it entirely for a specific instance.
 
-`apply_filters( 'pmt_post_grid_structured_data', array $schema, array $items )`
+`apply_filters( 'pmtpofob_post_grid_structured_data', array $schema, array $items )`
 
 == Screenshots ==
 
@@ -156,6 +161,33 @@ Filters the schema.org `ItemList` array before it's serialized to JSON-LD -- add
 4. Widget settings panel (Elementor).
 
 == Changelog ==
+
+= 2.42.4 =
+* readme updated. css updated. hide 0 post category in output.
+
+= 2.42.3 = (renamed slug/text domain to pmt-postgrid-block-editor-elementor-support, prefix changed from pmt_/pmt- to pmtpofob_/pmtpofob-, added Requires Plugins: elementor; verified Elementor-specific code already loads only when Elementor is active and fails gracefully otherwise -- no functional change needed; fixed a stale old-plugin-name reference in uninstall.php's header comment and in CHANGELOG.md's own intro line; prefixed uninstall.php's own $site_ids/$site_id variables to pmtpofob_site_ids/pmtpofob_site_id -- these sit at the file's top-level script flow rather than inside a function, closer to global scope than an ordinary function-local variable; checked the rest of the codebase for anything similar and found nothing else in that category)
+* proper escaping done in many places.
+* Added two new panels/sections in both builders, positioned right after Reset: "Document" (links to the plugin's documentation) and "Buy Premium" (links to the Pro version's download page).
+
+= 2.42.2 =
+* Fixed a real gap in the JSON-LD structured data's `</script>` breakout guard, in `pmt_post_grid_render_structured_data()` -- the only place this plugin generates structured data, which every design (1/2/3) and both builders funnel through. The guard used `str_replace()`, which only matches the exact lowercase string `</script>`; browsers close `<script>` tags case-insensitively, so a post title containing e.g. `</SCRIPT>` would have slipped through and closed the tag early, letting whatever followed execute as live JavaScript. Switched to `str_ireplace()` (case-insensitive). Fixed at the single source function rather than patched at each of the four call sites that echo its output, since escaping there isn't really the issue -- the string those call sites return is a deliberate mix of trusted markup and already-safe dynamic content, and the actual defect was in how the JSON-LD segment gets sanitized before that string is even assembled.
+ Renamed the plugin again: "PMT PostGrid for block editor with elementor support" (was "Post Grid Block and Addon for the Block Editor and Elementor"). WordPress.org's plugin review flagged the previous name as too generic and overlapping existing "Post Grid" plugins, with "Elementor" not clearly framed as a third-party integration. New name puts a distinctive brand prefix ("PMT") first, per WordPress.org's own stated pattern for trademark framing (brand name first, generic description in the middle, third-party trademark at the end as "with X support"). Requested slug/Text Domain (`pmt-post-grid`) is unchanged -- it already matched the plugin's existing internal folder name and every internal identifier, so this was a display-name-only update, not a full text-domain migration.
+
+= 2.42.1 =
+* Renamed the plugin: "Post Grid Block and Addon for the Block Editor and Elementor" (was "...for Gutenberg and Elementor"). WordPress.org's plugin upload validator rejected the previous name -- "gutenberg" is a restricted term and cannot appear in a plugin's name/permalink at all, regardless of context. Updated consistently everywhere the name appears: the PHP `Plugin Name:` header, the readme title, the admin menu title, and the admin page heading.
+
+= 2.42.0 =
+* Removed the "Leave a review" admin notice entirely (added in 2.38.1) -- the activation hook, its self-healing admin_init fallback, the review-action handler, the allowed_redirect_hosts filter it needed, the notice itself, and its two options (`pmt_post_grid_activated_time`, `pmt_post_grid_review_dismissed`) are all gone, including their cleanup entry in `uninstall.php` -- this plugin was never distributed with the feature active, so there's no legacy data anywhere to account for.
+
+= 2.41.3 =
+* Switched the "Leave a review" notice's external redirect (the "Ok, you deserve it" action) from `wp_redirect()` to `wp_safe_redirect()`, and added `wordpress.org` to `allowed_redirect_hosts` so the off-site redirect to the actual WordPress.org review page still works correctly -- `wp_safe_redirect()` silently blocks redirects to any host not on that list by default.
+* Documented (via `phpcs:ignore`) why `uninstall.php`'s two bulk-delete queries intentionally don't use `wp_cache_get()`/`wp_cache_set()`/`wp_cache_delete()` -- both are one-time, pattern-based bulk deletes with no "next read" for a cache to ever serve, since they run exactly once, right before the data they touch ceases to exist entirely.
+
+= 2.41.2 =
+* Removed all remote image references from the "Post Grid" admin products page -- fixes a PluginCheck.CodeAnalysis.Offloading.OffloadedContent finding. Plugin icons (previously loaded from ps.w.org) and theme screenshots (previously loaded from WordPress.org's own asset CDN) are gone entirely; the page is now text-only (name, description, install count, link) for both "Our Plugins" and "Our Themes." Offloading any image/script/style to a remote host is disallowed regardless of whose server it is, including WordPress.org's own -- not something that could be fixed by simply hosting the same images locally either, since this plugin has no way to fetch and bundle real third-party image assets as part of its own build process.
+
+= 2.41.1 =
+* Switched date/time output to late escaping (escaping applied inline, right at the point of output, rather than pre-assigned to a variable earlier and echoed later) -- fixes a WordPress.Security.EscapeOutput.OutputNotEscaped PHPCS finding at pmt-post-grid.php:1015, and two further occurrences of the same underlying pattern (the meta-info date entries in the 'row' and 'full' card variants) that a targeted search turned up. Not a security fix -- the data was already safe either way -- but the correct, current best-practice pattern per WordPress's own coding standards, and easier to audit.
 
 = 2.41.0 =
 * Removed the last remaining static inline styles -- the "Post Grid" admin products page (Our Plugins / Our Themes) was built quickly with `style="..."` attributes throughout, which is exactly the pattern flagged and fixed elsewhere in this plugin earlier (the same distinction applies: static values that never vary should be a CSS class, not an inline style). Moved everything into a new dedicated stylesheet, `admin/products-page.css`, enqueued only on that one admin page -- never loaded anywhere else, including the front end. Every remaining inline style in the plugin is now confirmed genuinely dynamic (per-category colors, per-instance CSS custom properties) and can't be a static class.

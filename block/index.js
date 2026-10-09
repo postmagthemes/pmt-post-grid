@@ -22,9 +22,9 @@
 	var __ = wp.i18n.__;
 
 	var ALIGN_OPTIONS = [
-		{ value: 'left', label: __('Left', 'pmt-post-grid'), icon: 'editor-alignleft' },
-		{ value: 'center', label: __('Center', 'pmt-post-grid'), icon: 'editor-aligncenter' },
-		{ value: 'right', label: __('Right', 'pmt-post-grid'), icon: 'editor-alignright' },
+		{ value: 'left', label: __('Left', 'pmt-postgrid-block-editor-elementor-support'), icon: 'editor-alignleft' },
+		{ value: 'center', label: __('Center', 'pmt-postgrid-block-editor-elementor-support'), icon: 'editor-aligncenter' },
+		{ value: 'right', label: __('Right', 'pmt-postgrid-block-editor-elementor-support'), icon: 'editor-alignright' },
 	];
 
 	var TITLE_TAG_OPTIONS = [
@@ -40,10 +40,10 @@
 	// Used by the "Reset all settings" button at the bottom of the
 	// Typography panel. Hand-kept in sync with the 'default' values in
 	// this block's attribute schema (register_block_type() in
-	// pmt-post-grid.php) -- if a default ever changes there, this needs
+	// pmtpofob-post-grid.php) -- if a default ever changes there, this needs
 	// updating too. Deliberately excludes 'align' (block placement, not
 	// a widget setting) -- everything else the panels expose is here.
-	var PMT_DEFAULT_ATTRIBUTES = {
+	var PMTPOFOB_DEFAULT_ATTRIBUTES = {
 		columns: 2,
 		design: 'design_1',
 		postsToShow: 4,
@@ -101,11 +101,11 @@
 	};
 
 	var LAYOUT_ORDER_LABELS = {
-		image: __('Featured image', 'pmt-post-grid'),
-		badge: __('Category badge', 'pmt-post-grid'),
-		title: __('Title', 'pmt-post-grid'),
-		excerpt: __('Excerpt', 'pmt-post-grid'),
-		tags: __('Tags', 'pmt-post-grid'),
+		image: __('Featured image', 'pmt-postgrid-block-editor-elementor-support'),
+		badge: __('Category badge', 'pmt-postgrid-block-editor-elementor-support'),
+		title: __('Title', 'pmt-postgrid-block-editor-elementor-support'),
+		excerpt: __('Excerpt', 'pmt-postgrid-block-editor-elementor-support'),
+		tags: __('Tags', 'pmt-postgrid-block-editor-elementor-support'),
 	};
 
 	// Swaps the item at `index` with its neighbor in the `delta` direction
@@ -124,8 +124,7 @@
 	}
 
 	registerBlockType('pmt/post-grid', {
-		title: __('Post Grid (Postmagthemes)', 'pmt-post-grid'),
-		description: __('A live post grid, rendered by PHP with its own namespaced (.pmt-*) markup and styling.', 'pmt-post-grid'),
+		title: __('Post Grid (Postmagthemes)', 'pmt-postgrid-block-editor-elementor-support'),
 		icon: 'grid-view',
 		category: 'postmagthemes',
 		supports: {
@@ -199,13 +198,13 @@
 					});
 			}, []);
 
-			var categoryOptions = [{ label: __('All categories', 'pmt-post-grid'), value: '' }].concat(
+			var categoryOptions = [{ label: __('All categories', 'pmt-postgrid-block-editor-elementor-support'), value: '' }].concat(
 				categories.map(function (cat) {
 					return { label: cat.name + ' (' + cat.count + ')', value: String(cat.id) };
 				})
 			);
 
-			var authorOptions = [{ label: __('All authors', 'pmt-post-grid'), value: '' }].concat(
+			var authorOptions = [{ label: __('All authors', 'pmt-postgrid-block-editor-elementor-support'), value: '' }].concat(
 				authors.map(function (author) {
 					return { label: author.name, value: String(author.id) };
 				})
@@ -257,14 +256,14 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __('Query', 'pmt-post-grid'), initialOpen: true },
+						{ title: __('Query', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: true },
 						el(SelectControl, {
-							label: __('Category', 'pmt-post-grid'),
+							label: __('Category', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.category,
 							options: categoryOptions,
 							disabled: selectedPostIds.length > 0,
 							help: selectedPostIds.length
-								? __('Ignored while specific posts are selected below.', 'pmt-post-grid')
+								? __('Ignored while specific posts are selected below.', 'pmt-postgrid-block-editor-elementor-support')
 								: undefined,
 							onChange: function (val) {
 								var found = categoryOptions.filter(function (o) {
@@ -277,26 +276,26 @@
 							},
 						}),
 						el(SelectControl, {
-							label: __('Author', 'pmt-post-grid'),
+							label: __('Author', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.author,
 							options: authorOptions,
 							disabled: selectedPostIds.length > 0,
 							help: selectedPostIds.length
-								? __('Ignored while specific posts are selected below.', 'pmt-post-grid')
-								: __('Default: All authors', 'pmt-post-grid'),
+								? __('Ignored while specific posts are selected below.', 'pmt-postgrid-block-editor-elementor-support')
+								: __('Default: All authors', 'pmt-postgrid-block-editor-elementor-support'),
 							onChange: function (val) {
 								setAttributes({ author: val });
 							},
 						}),
 						el(SelectControl, {
-							label: __('Order by', 'pmt-post-grid'),
+							label: __('Order by', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.orderBy,
 							disabled: selectedPostIds.length > 0,
 							options: [
-								{ label: __('Date', 'pmt-post-grid'), value: 'date' },
-								{ label: __('Comment count', 'pmt-post-grid'), value: 'comment_count' },
+								{ label: __('Date', 'pmt-postgrid-block-editor-elementor-support'), value: 'date' },
+								{ label: __('Comment count', 'pmt-postgrid-block-editor-elementor-support'), value: 'comment_count' },
 							],
-							help: __('Always newest/most-commented first.', 'pmt-post-grid'),
+							help: __('Always newest/most-commented first.', 'pmt-postgrid-block-editor-elementor-support'),
 							onChange: function (val) {
 								setAttributes({ orderBy: val });
 							},
@@ -304,14 +303,14 @@
 					),
 					el(
 						PanelBody,
-						{ title: __('Specific posts', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Specific posts', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(
 							'p',
 							{ style: { fontSize: '12px', color: '#757575' } },
-							__('Pick exact posts to show by title. When any are checked, they completely override Category/Order by/Number of posts -- exactly these posts show, in the order checked.', 'pmt-post-grid')
+							__('Pick exact posts to show by title. When any are checked, they completely override Category/Order by/Number of posts of above.', 'pmt-postgrid-block-editor-elementor-support')
 						),
 						el(TextControl, {
-							label: __('Search titles', 'pmt-post-grid'),
+							label: __('Search titles', 'pmt-postgrid-block-editor-elementor-support'),
 							value: postSearch,
 							onChange: setPostSearch,
 						}),
@@ -322,7 +321,7 @@
 								{ style: { maxHeight: '260px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '4px', padding: '8px' } },
 								filteredPosts.length
 									? filteredPosts.map(function (post) {
-										var title = post.title && post.title.rendered ? post.title.rendered : '(' + __('no title', 'pmt-post-grid') + ')';
+										var title = post.title && post.title.rendered ? post.title.rendered : '(' + __('no title', 'pmt-postgrid-block-editor-elementor-support') + ')';
 										return el(CheckboxControl, {
 											key: post.id,
 											label: title,
@@ -332,7 +331,7 @@
 											},
 										});
 									})
-									: el('p', { style: { fontSize: '12px', color: '#757575' } }, __('No posts match that search.', 'pmt-post-grid'))
+									: el('p', { style: { fontSize: '12px', color: '#757575' } }, __('No posts match that search.', 'pmt-postgrid-block-editor-elementor-support'))
 							),
 						selectedPostIds.length
 							? el(
@@ -345,22 +344,22 @@
 										setAttributes({ postIds: [] });
 									},
 								},
-								__('Clear selection', 'pmt-post-grid') + ' (' + selectedPostIds.length + ')'
+								__('Clear selection', 'pmt-postgrid-block-editor-elementor-support') + ' (' + selectedPostIds.length + ')'
 							)
 							: null
 					),
 					el(
 						PanelBody,
-						{ title: __('Exclude posts', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Exclude posts', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(
 							'p',
 							{ style: { fontSize: '12px', color: '#757575' } },
 							selectedPostIds.length
-								? __('Ignored while specific posts are selected above -- there\'s nothing to exclude from an exact list.', 'pmt-post-grid')
-								: __('Posts checked here are removed from the results, on top of Category/Author/Order above.', 'pmt-post-grid')
+								? __('Ignored while specific posts are selected above.', 'pmt-postgrid-block-editor-elementor-support')
+								: __('Posts checked here are removed from the results, on top of Category/Author/Order above.', 'pmt-postgrid-block-editor-elementor-support')
 						),
 						el(TextControl, {
-							label: __('Search titles', 'pmt-post-grid'),
+							label: __('Search titles', 'pmt-postgrid-block-editor-elementor-support'),
 							value: excludeSearch,
 							disabled: selectedPostIds.length > 0,
 							onChange: setExcludeSearch,
@@ -372,7 +371,7 @@
 								{ style: { maxHeight: '260px', overflowY: 'auto', border: '1px solid #ddd', borderRadius: '4px', padding: '8px', opacity: selectedPostIds.length > 0 ? 0.5 : 1, pointerEvents: selectedPostIds.length > 0 ? 'none' : 'auto' } },
 								filteredExcludePosts.length
 									? filteredExcludePosts.map(function (post) {
-										var title = post.title && post.title.rendered ? post.title.rendered : '(' + __('no title', 'pmt-post-grid') + ')';
+										var title = post.title && post.title.rendered ? post.title.rendered : '(' + __('no title', 'pmt-postgrid-block-editor-elementor-support') + ')';
 										return el(CheckboxControl, {
 											key: post.id,
 											label: title,
@@ -382,7 +381,7 @@
 											},
 										});
 									})
-									: el('p', { style: { fontSize: '12px', color: '#757575' } }, __('No posts match that search.', 'pmt-post-grid'))
+									: el('p', { style: { fontSize: '12px', color: '#757575' } }, __('No posts match that search.', 'pmt-postgrid-block-editor-elementor-support'))
 							),
 						selectedExcludeIds.length
 							? el(
@@ -395,54 +394,54 @@
 										setAttributes({ excludePostIds: [] });
 									},
 								},
-								__('Clear exclusions', 'pmt-post-grid') + ' (' + selectedExcludeIds.length + ')'
+								__('Clear exclusions', 'pmt-postgrid-block-editor-elementor-support') + ' (' + selectedExcludeIds.length + ')'
 							)
 							: null
 					),
 					el(
 						PanelBody,
-						{ title: __('Content', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Content', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(ToggleControl, {
-							label: __('Show main title', 'pmt-post-grid'),
+							label: __('Show main title', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showMainTitle,
 							onChange: function (val) {
 								setAttributes({ showMainTitle: val });
 							},
-							help: __('A section heading above the grid, higher-level than the post title.', 'pmt-post-grid'),
+							help: __('A section heading above the grid, higher-level than the post title.', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						attributes.showMainTitle
 							? el(TextControl, {
-								label: __('Main title text', 'pmt-post-grid'),
+								label: __('Main title text', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.mainTitleText,
 								onChange: function (val) {
 									setAttributes({ mainTitleText: val });
 								},
-								placeholder: __('e.g. Latest posts', 'pmt-post-grid'),
+								placeholder: __('e.g. Latest posts', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						attributes.showMainTitle
 							? el(SelectControl, {
-								label: __('Main title tag', 'pmt-post-grid'),
+								label: __('Main title tag', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.mainTitleTag,
 								options: [
 									{ label: 'H1', value: 'h1' },
 									{ label: 'H2', value: 'h2' },
 								],
-								help: __('Default: H2', 'pmt-post-grid'),
+								help: __('Default: H2', 'pmt-postgrid-block-editor-elementor-support'),
 								onChange: function (val) {
 									setAttributes({ mainTitleTag: val });
 								},
 							})
 							: null,
 						el(ToggleControl, {
-							label: __('Show featured image', 'pmt-post-grid'),
+							label: __('Show featured image', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showImage,
 							onChange: function (val) {
 								setAttributes({ showImage: val });
 							},
 						}),
 						el(ToggleControl, {
-							label: __('Show excerpt', 'pmt-post-grid'),
+							label: __('Show excerpt', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showExcerpt,
 							onChange: function (val) {
 								setAttributes({ showExcerpt: val });
@@ -450,33 +449,32 @@
 						}),
 						attributes.showExcerpt
 							? el(RangeControl, {
-								label: __('Excerpt length (words)', 'pmt-post-grid'),
+								label: __('Excerpt length (words)', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.excerptLength,
 								onChange: function (val) {
 									setAttributes({ excerptLength: val });
 								},
 								min: 5,
 								max: 100,
-								help: __('Default: 20', 'pmt-post-grid'),
+								help: __('Default: 20', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						el(ToggleControl, {
-							label: __('Show tags', 'pmt-post-grid'),
+							label: __('Show tags', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showTags,
 							onChange: function (val) {
 								setAttributes({ showTags: val });
 							},
 						}),
 						el(ToggleControl, {
-							label: __('Show category badge', 'pmt-post-grid'),
+							label: __('Show category badge', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showCategoryBadge,
 							onChange: function (val) {
 								setAttributes({ showCategoryBadge: val });
 							},
-							help: __('Also controls Column B (Design 2). Auto-colored per category.', 'pmt-post-grid'),
 						}),
 						el(ToggleControl, {
-							label: __('Show "Read more" button', 'pmt-post-grid'),
+							label: __('Show "Read more" button', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showReadMore,
 							onChange: function (val) {
 								setAttributes({ showReadMore: val });
@@ -484,7 +482,7 @@
 						}),
 						attributes.showReadMore
 							? el(TextControl, {
-								label: __('Button text', 'pmt-post-grid'),
+								label: __('Button text', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.readMoreText,
 								onChange: function (val) {
 									setAttributes({ readMoreText: val });
@@ -492,48 +490,48 @@
 							})
 							: null,
 						el(ToggleControl, {
-							label: __('Add structured data (SEO)', 'pmt-post-grid'),
+							label: __('Add structured data (SEO)', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showStructuredData,
 							onChange: function (val) {
 								setAttributes({ showStructuredData: val });
 							},
-							help: __('Outputs a schema.org ItemList block listing these posts, for richer search results. Default: on. Turn off if your SEO plugin already outputs its own listing schema for this page.', 'pmt-post-grid'),
+							help: __('Outputs a schema.org ItemList block listing these posts, for richer search results. Default: on. Turn off if your SEO plugin already outputs its own listing schema for this page.', 'pmt-postgrid-block-editor-elementor-support'),
 						})
 					),
 					el(
 						PanelBody,
-						{ title: __('Meta info', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Meta info', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(ToggleControl, {
-							label: __('Show author (avatar + name)', 'pmt-post-grid'),
+							label: __('Show author (avatar + name)', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showAuthor,
 							onChange: function (val) {
 								setAttributes({ showAuthor: val });
 							},
-							help: __('Always the first item in meta info.', 'pmt-post-grid'),
+							help: __('Always the first item in meta info.', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(ToggleControl, {
-							label: __('Show date', 'pmt-post-grid'),
+							label: __('Show date', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showDate,
 							onChange: function (val) {
 								setAttributes({ showDate: val });
 							},
 						}),
 						el(ToggleControl, {
-							label: __('Show comment count', 'pmt-post-grid'),
+							label: __('Show comment count', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showComments,
 							onChange: function (val) {
 								setAttributes({ showComments: val });
 							},
 						}),
 						el(ToggleControl, {
-							label: __('Show views', 'pmt-post-grid'),
+							label: __('Show views', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showViews,
 							onChange: function (val) {
 								setAttributes({ showViews: val });
 							},
 						}),
 						el(ToggleControl, {
-							label: __('Show reading time', 'pmt-post-grid'),
+							label: __('Show reading time', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showReadingTime,
 							onChange: function (val) {
 								setAttributes({ showReadingTime: val });
@@ -542,55 +540,48 @@
 					),
 					el(
 						PanelBody,
-						{ title: __('Layout', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Layout', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(SelectControl, {
-							label: __('Design', 'pmt-post-grid'),
+							label: __('Design', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.design || 'design_1',
 							options: [
-								{ label: __('Design 1', 'pmt-post-grid'), value: 'design_1' },
-								{ label: __('Design 2', 'pmt-post-grid'), value: 'design_2' },
-								{ label: __('Design 3', 'pmt-post-grid'), value: 'design_3' },
+								{ label: __('Design 1', 'pmt-postgrid-block-editor-elementor-support'), value: 'design_1' },
+								{ label: __('Design 2', 'pmt-postgrid-block-editor-elementor-support'), value: 'design_2' },
+								{ label: __('Design 3', 'pmt-postgrid-block-editor-elementor-support'), value: 'design_3' },
 							],
-							help: (attributes.design || 'design_1') === 'design_2'
-								? __('Golden-ratio layout: one featured post + 4 smaller posts, always 5 total.', 'pmt-post-grid')
-								: (attributes.design || 'design_1') === 'design_3'
-									? __('Stacked rows, each split image/content at the golden ratio.', 'pmt-post-grid')
-									: __('Default: Design 1', 'pmt-post-grid'),
 							onChange: function (val) {
 								setAttributes({ design: val });
 							},
 						}),
 						el(ToggleControl, {
-							label: __('Show sort filter (Most recent / Most commented)', 'pmt-post-grid'),
+							label: __('Show sort filter (Most recent / Most commented)', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showOrderByDropdown,
 							onChange: function (val) {
 								setAttributes({ showOrderByDropdown: val });
 							},
-							help: __('The live front-end dropdown. Hidden automatically when Specific posts is active.', 'pmt-post-grid'),
 						}),
 						el(ToggleControl, {
-							label: __('Show category filter', 'pmt-post-grid'),
+							label: __('Show category filter', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.showCategoryDropdown,
 							onChange: function (val) {
 								setAttributes({ showCategoryDropdown: val });
 							},
-							help: __('The live front-end dropdown. Hidden automatically when Specific posts is active.', 'pmt-post-grid'),
 						}),
 						(attributes.design || 'design_1') === 'design_1'
 							? el(RangeControl, {
-								label: __('Columns', 'pmt-post-grid'),
+								label: __('Columns', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.columns,
 								onChange: function (val) {
 									setAttributes({ columns: val });
 								},
 								min: 2,
 								max: 6,
-								help: __('Default: 2', 'pmt-post-grid'),
+								help: __('Default: 2', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						(attributes.design || 'design_1') === 'design_1'
 							? el(RangeControl, {
-								label: __('Number of posts', 'pmt-post-grid'),
+								label: __('Number of posts', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.postsToShow,
 								onChange: function (val) {
 									setAttributes({ postsToShow: val });
@@ -598,13 +589,13 @@
 								min: 1,
 								max: 24,
 								help: selectedPostIds.length
-									? __('Ignored while specific posts are selected below.', 'pmt-post-grid')
-									: __('Default: 4', 'pmt-post-grid'),
+									? __('Ignored while specific posts are selected below.', 'pmt-postgrid-block-editor-elementor-support')
+									: __('Default: 4', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						(attributes.design || 'design_1') === 'design_3'
 							? el(RangeControl, {
-								label: __('Number of posts', 'pmt-post-grid'),
+								label: __('Number of posts', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.design3PostsToShow,
 								onChange: function (val) {
 									setAttributes({ design3PostsToShow: val });
@@ -612,25 +603,25 @@
 								min: 1,
 								max: 20,
 								help: selectedPostIds.length
-									? __('Ignored while specific posts are selected below.', 'pmt-post-grid')
-									: __('Default: 3', 'pmt-post-grid'),
+									? __('Ignored while specific posts are selected below.', 'pmt-postgrid-block-editor-elementor-support')
+									: __('Default: 3', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						(attributes.design || 'design_1') === 'design_3'
 							? el(ToggleControl, {
-								label: __('Alternate image side', 'pmt-post-grid'),
+								label: __('Alternate image side', 'pmt-postgrid-block-editor-elementor-support'),
 								checked: attributes.design3AlternateImage,
 								onChange: function (val) {
 									setAttributes({ design3AlternateImage: val });
 								},
-								help: __('Odd rows image-left, even rows image-right. Default: off (always left).', 'pmt-post-grid'),
+								help: __('Odd rows image-left, even rows image-right. Default: off (always left).', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						el(SelectControl, {
-							label: __('Post title tag', 'pmt-post-grid'),
+							label: __('Post title tag', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.titleTag,
 							options: TITLE_TAG_OPTIONS,
-							help: __('The HTML heading level used for each post title. Default: H3.', 'pmt-post-grid'),
+							help: __('The HTML heading level used for each post title. Default: H3.', 'pmt-postgrid-block-editor-elementor-support'),
 							onChange: function (val) {
 								setAttributes({ titleTag: val });
 							},
@@ -638,7 +629,7 @@
 						el(
 							'div',
 							{ style: { marginTop: '16px' } },
-							el('p', { style: { marginBottom: '8px', fontWeight: 500 } }, __('Text alignment', 'pmt-post-grid')),
+							el('p', { style: { marginBottom: '8px', fontWeight: 500 } }, __('Text alignment', 'pmt-postgrid-block-editor-elementor-support')),
 							el(
 								ButtonGroup,
 								null,
@@ -658,13 +649,13 @@
 						el(
 							'div',
 							{ style: { marginTop: '16px' } },
-							el('p', { style: { marginBottom: '4px', fontWeight: 500 } }, __('Card element order', 'pmt-post-grid')),
+							el('p', { style: { marginBottom: '4px', fontWeight: 500 } }, __('Card element order', 'pmt-postgrid-block-editor-elementor-support')),
 							el(
 								'p',
 								{ style: { fontSize: '12px', color: '#757575', marginTop: 0, marginBottom: '8px' } },
 								(attributes.design || 'design_1') === 'design_3'
-									? __('Controls the stacking order of these elements within each row\'s content column. Toggles elsewhere still control whether a hidden element shows at all. The image is always its own fixed column in Design 3 (see Alternate image side above) -- not reorderable, so it doesn\'t appear here. Meta info always renders last, not reorderable either.', 'pmt-post-grid')
-									: __('Controls the stacking order of these elements within each card. Toggles elsewhere still control whether a hidden element shows at all. Meta info and the "Read more" button always render last, in that order, after everything below -- they\'re not reorderable.', 'pmt-post-grid')
+									? __('Controls the stacking order of these elements. Toggles elsewhere still control whether a hidden element shows at all. The image is not reorderable in Design 3.', 'pmt-postgrid-block-editor-elementor-support')
+									: __('Controls the stacking order of these elements within each card. Toggles elsewhere still control whether a hidden element shows at all. Meta info and the "Read more" button are not reorderable.', 'pmt-postgrid-block-editor-elementor-support')
 							),
 							(function () {
 								var isDesign3 = (attributes.design || 'design_1') === 'design_3';
@@ -694,7 +685,6 @@
 												null,
 												el(Button, {
 													icon: 'arrow-up-alt2',
-													label: __('Move up', 'pmt-post-grid'),
 													isSmall: true,
 													disabled: index === 0,
 													onClick: function () {
@@ -705,7 +695,6 @@
 												}),
 												el(Button, {
 													icon: 'arrow-down-alt2',
-													label: __('Move down', 'pmt-post-grid'),
 													isSmall: true,
 													disabled: index === order.length - 1,
 													onClick: function () {
@@ -724,109 +713,108 @@
 							? el(
 								'div',
 								{ style: { marginTop: '16px' } },
-								el('p', { style: { marginBottom: '4px', fontWeight: 500 } }, __('Related posts', 'pmt-post-grid')),
+								el('p', { style: { marginBottom: '4px', fontWeight: 500 } }, __('Related posts', 'pmt-postgrid-block-editor-elementor-support')),
 								el(TextControl, {
-									label: __('Related post title', 'pmt-post-grid'),
+									label: __('Title', 'pmt-postgrid-block-editor-elementor-support'),
 									value: attributes.relatedPostsSectionTitle,
 									onChange: function (val) {
 										setAttributes({ relatedPostsSectionTitle: val });
 									},
-									help: __('Section label shown above each row\'s related posts. Leave empty to hide the label (the related posts themselves still show).', 'pmt-post-grid'),
 								}),
 								el(ToggleControl, {
-									label: __('Show related post image', 'pmt-post-grid'),
+									label: __('Show related post image', 'pmt-postgrid-block-editor-elementor-support'),
 									checked: attributes.showRelatedImage,
 									onChange: function (val) {
 										setAttributes({ showRelatedImage: val });
 									},
 								}),
 								el(ToggleControl, {
-									label: __('Show related post title', 'pmt-post-grid'),
+									label: __('Show related post title', 'pmt-postgrid-block-editor-elementor-support'),
 									checked: attributes.showRelatedTitle,
 									onChange: function (val) {
 										setAttributes({ showRelatedTitle: val });
 									},
-									help: __('Up to 4 posts sharing that row\'s category. Not reorderable -- image always first, then title.', 'pmt-post-grid'),
+									help: __('Up to 4 posts sharing that row\'s category. Not reorderable -- image always first, then title.', 'pmt-postgrid-block-editor-elementor-support'),
 								})
 							)
 							: null
 					),
 					el(
 						PanelBody,
-						{ title: __('Style', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Style', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(RangeControl, {
-							label: __('Column margin (gutter between cards)', 'pmt-post-grid'),
+							label: __('Column margin (gutter between cards)', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.columnMargin,
 							onChange: function (val) {
 								setAttributes({ columnMargin: val });
 							},
 							min: 0,
 							max: 60,
-							help: __('Default: 15px', 'pmt-post-grid'),
+							help: __('Default: 15px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Row margin (space between rows)', 'pmt-post-grid'),
+							label: __('Row margin (space between rows)', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.rowMargin,
 							onChange: function (val) {
 								setAttributes({ rowMargin: val });
 							},
 							min: 0,
 							max: 100,
-							help: __('Default: 15px', 'pmt-post-grid'),
+							help: __('Default: 15px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Image corner radius', 'pmt-post-grid'),
+							label: __('Image corner radius', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.imageBorderRadius,
 							onChange: function (val) {
 								setAttributes({ imageBorderRadius: val });
 							},
 							min: 0,
 							max: 100,
-							help: __('Default: 10px. 0 = square corners.', 'pmt-post-grid'),
+							help: __('Default: 10px. 0 = square corners.', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
-						el('p', { style: { marginTop: '16px', marginBottom: '8px', fontWeight: 500 } }, __('Box shadow', 'pmt-post-grid')),
+						el('p', { style: { marginTop: '16px', marginBottom: '8px', fontWeight: 500 } }, __('Box shadow', 'pmt-postgrid-block-editor-elementor-support')),
 						el(RangeControl, {
-							label: __('Horizontal offset', 'pmt-post-grid'),
+							label: __('Horizontal offset', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.boxShadowHOffset,
 							onChange: function (val) {
 								setAttributes({ boxShadowHOffset: val });
 							},
 							min: -50,
 							max: 50,
-							help: __('Default: 0px', 'pmt-post-grid'),
+							help: __('Default: 0px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Vertical offset', 'pmt-post-grid'),
+							label: __('Vertical offset', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.boxShadowVOffset,
 							onChange: function (val) {
 								setAttributes({ boxShadowVOffset: val });
 							},
 							min: -50,
 							max: 50,
-							help: __('Default: 2px', 'pmt-post-grid'),
+							help: __('Default: 2px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Blur', 'pmt-post-grid'),
+							label: __('Blur', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.boxShadowBlur,
 							onChange: function (val) {
 								setAttributes({ boxShadowBlur: val });
 							},
 							min: 0,
 							max: 100,
-							help: __('Default: 12px', 'pmt-post-grid'),
+							help: __('Default: 12px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Spread', 'pmt-post-grid'),
+							label: __('Spread', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.boxShadowSpread,
 							onChange: function (val) {
 								setAttributes({ boxShadowSpread: val });
 							},
 							min: -50,
 							max: 50,
-							help: __('Default: 0px', 'pmt-post-grid'),
+							help: __('Default: 0px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Opacity', 'pmt-post-grid'),
+							label: __('Opacity', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.boxShadowOpacity,
 							onChange: function (val) {
 								setAttributes({ boxShadowOpacity: val });
@@ -834,15 +822,15 @@
 							min: 0,
 							max: 1,
 							step: 0.01,
-							help: __('Default: 0.09', 'pmt-post-grid'),
+							help: __('Default: 0.09', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(
 							'div',
 							{ style: { marginBottom: '8px' } },
-							el('p', { style: { marginBottom: '8px', fontWeight: 500 } }, __('Color', 'pmt-post-grid') + ' ' + __('(Default: #000000)', 'pmt-post-grid')),
+							el('p', { style: { marginBottom: '8px', fontWeight: 500 } }, __('Color', 'pmt-postgrid-block-editor-elementor-support') + ' ' + __('(Default: #000000)', 'pmt-postgrid-block-editor-elementor-support')),
 							el(Dropdown, {
-								className: 'pmt-color-dropdown',
-								contentClassName: 'pmt-color-dropdown__content',
+								className: 'pmtpofob-color-dropdown',
+								contentClassName: 'pmtpofob-color-dropdown__content',
 								renderToggle: function (toggleProps) {
 									return el(
 										Button,
@@ -853,7 +841,7 @@
 											style: { display: 'flex', alignItems: 'center', gap: '8px' },
 										},
 										el(ColorIndicator, { colorValue: attributes.boxShadowColor }),
-										attributes.boxShadowColor || __('Pick a color', 'pmt-post-grid')
+										attributes.boxShadowColor || __('Pick a color', 'pmt-postgrid-block-editor-elementor-support')
 									);
 								},
 								renderContent: function () {
@@ -872,34 +860,34 @@
 							})
 						),
 						el(ToggleControl, {
-							label: __('Inset shadow', 'pmt-post-grid'),
+							label: __('Inset shadow', 'pmt-postgrid-block-editor-elementor-support'),
 							checked: attributes.boxShadowInset,
 							onChange: function (val) {
 								setAttributes({ boxShadowInset: val });
 							},
 						}),
-						el('p', { style: { marginTop: '24px', marginBottom: '8px', fontWeight: 500 } }, __('Box border', 'pmt-post-grid')),
+						el('p', { style: { marginTop: '24px', marginBottom: '8px', fontWeight: 500 } }, __('Box border', 'pmt-postgrid-block-editor-elementor-support')),
 						el(RangeControl, {
-							label: __('Border width', 'pmt-post-grid'),
+							label: __('Border width', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.borderWidth,
 							onChange: function (val) {
 								setAttributes({ borderWidth: val });
 							},
 							min: 0,
 							max: 20,
-							help: __('Default: 0px', 'pmt-post-grid'),
+							help: __('Default: 0px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(SelectControl, {
-							label: __('Border style', 'pmt-post-grid'),
+							label: __('Border style', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.borderStyle,
 							options: [
-								{ label: __('Solid', 'pmt-post-grid'), value: 'solid' },
-								{ label: __('Dashed', 'pmt-post-grid'), value: 'dashed' },
-								{ label: __('Dotted', 'pmt-post-grid'), value: 'dotted' },
-								{ label: __('Double', 'pmt-post-grid'), value: 'double' },
-								{ label: __('None', 'pmt-post-grid'), value: 'none' },
+								{ label: __('Solid', 'pmt-postgrid-block-editor-elementor-support'), value: 'solid' },
+								{ label: __('Dashed', 'pmt-postgrid-block-editor-elementor-support'), value: 'dashed' },
+								{ label: __('Dotted', 'pmt-postgrid-block-editor-elementor-support'), value: 'dotted' },
+								{ label: __('Double', 'pmt-postgrid-block-editor-elementor-support'), value: 'double' },
+								{ label: __('None', 'pmt-postgrid-block-editor-elementor-support'), value: 'none' },
 							],
-							help: __('Default: Solid', 'pmt-post-grid'),
+							help: __('Default: Solid', 'pmt-postgrid-block-editor-elementor-support'),
 							onChange: function (val) {
 								setAttributes({ borderStyle: val });
 							},
@@ -907,10 +895,10 @@
 						el(
 							'div',
 							{ style: { marginBottom: '8px' } },
-							el('p', { style: { marginBottom: '8px', fontWeight: 500 } }, __('Border color', 'pmt-post-grid') + ' ' + __('(Default: grey)', 'pmt-post-grid')),
+							el('p', { style: { marginBottom: '8px', fontWeight: 500 } }, __('Border color', 'pmt-postgrid-block-editor-elementor-support') + ' ' + __('(Default: grey)', 'pmt-postgrid-block-editor-elementor-support')),
 							el(Dropdown, {
-								className: 'pmt-color-dropdown',
-								contentClassName: 'pmt-color-dropdown__content',
+								className: 'pmtpofob-color-dropdown',
+								contentClassName: 'pmtpofob-color-dropdown__content',
 								renderToggle: function (toggleProps) {
 									return el(
 										Button,
@@ -921,7 +909,7 @@
 											style: { display: 'flex', alignItems: 'center', gap: '8px' },
 										},
 										el(ColorIndicator, { colorValue: attributes.borderColor }),
-										attributes.borderColor || __('Pick a color', 'pmt-post-grid')
+										attributes.borderColor || __('Pick a color', 'pmt-postgrid-block-editor-elementor-support')
 									);
 								},
 								renderContent: function () {
@@ -940,61 +928,61 @@
 							})
 						),
 						el(RangeControl, {
-							label: __('Upper corner radius', 'pmt-post-grid'),
+							label: __('Upper corner radius', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.borderRadiusTop,
 							onChange: function (val) {
 								setAttributes({ borderRadiusTop: val });
 							},
 							min: 0,
 							max: 100,
-							help: __('Rounds the top-left and top-right corners. Default: 10px', 'pmt-post-grid'),
+							help: __('Rounds the top-left and top-right corners. Default: 10px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						el(RangeControl, {
-							label: __('Lower corner radius', 'pmt-post-grid'),
+							label: __('Lower corner radius', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.borderRadiusBottom,
 							onChange: function (val) {
 								setAttributes({ borderRadiusBottom: val });
 							},
 							min: 0,
 							max: 100,
-							help: __('Rounds the bottom-left and bottom-right corners. Default: 10px', 'pmt-post-grid'),
+							help: __('Rounds the bottom-left and bottom-right corners. Default: 10px', 'pmt-postgrid-block-editor-elementor-support'),
 						})
 					),
 					el(
 						PanelBody,
-						{ title: __('Typography', 'pmt-post-grid'), initialOpen: false },
+						{ title: __('Typography', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
 						el(RangeControl, {
-							label: __('Title font size', 'pmt-post-grid'),
+							label: __('Title font size', 'pmt-postgrid-block-editor-elementor-support'),
 							value: attributes.titleFontSize,
 							onChange: function (val) {
 								setAttributes({ titleFontSize: val });
 							},
 							min: 10,
 							max: 60,
-							help: __('Default: 20px', 'pmt-post-grid'),
+							help: __('Default: 20px', 'pmt-postgrid-block-editor-elementor-support'),
 						}),
 						(attributes.design || 'design_1') === 'design_2'
 							? el(RangeControl, {
-								label: __('Column B title size (% of Column A)', 'pmt-post-grid'),
+								label: __('Column B title size (% of Column A)', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.titleFontSizeScaleB,
 								onChange: function (val) {
 									setAttributes({ titleFontSizeScaleB: val });
 								},
 								min: 10,
 								max: 150,
-								help: __('Default: 75% -- e.g. if Column A is 20px, Column B is 15px automatically.', 'pmt-post-grid'),
+								help: __('Default: 75% -- e.g. if Column A is 20px, Column B is 15px automatically.', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						(attributes.design || 'design_1') === 'design_3'
 							? el(RangeControl, {
-								label: __('Related post title size (% of parent)', 'pmt-post-grid'),
+								label: __('Related post title size (% of parent)', 'pmt-postgrid-block-editor-elementor-support'),
 								value: attributes.relatedTitleScale,
 								onChange: function (val) {
 									setAttributes({ relatedTitleScale: val });
 								},
 								min: 10,
 								max: 150,
-								help: __('Default: 80% -- e.g. if the row\'s title is 20px, related post titles are 16px automatically.', 'pmt-post-grid'),
+								help: __('Default: 80% -- e.g. if the row\'s title is 20px, related post titles are 16px automatically.', 'pmt-postgrid-block-editor-elementor-support'),
 							})
 							: null,
 						el(Button, {
@@ -1002,15 +990,41 @@
 							isDestructive: true,
 							style: { marginTop: '16px' },
 							onClick: function () {
-								if (window.confirm(__('Reset all settings to default? This cannot be undone.', 'pmt-post-grid'))) {
-									setAttributes(PMT_DEFAULT_ATTRIBUTES);
+								if (window.confirm(__('Reset', 'pmt-postgrid-block-editor-elementor-support'))) {
+									setAttributes(PMTPOFOB_DEFAULT_ATTRIBUTES);
 								}
 							},
-						}, __('Reset to default', 'pmt-post-grid')),
+						}, __('Reset to default', 'pmt-postgrid-block-editor-elementor-support')),
 						el(
 							'p',
 							{ style: { fontSize: '12px', color: '#757575', marginTop: '6px' } },
-							__('Resets every control on this block -- Query, Content, Meta info, Layout, Style, and Typography -- back to its default value. This cannot be undone.', 'pmt-post-grid')
+							__('Resets every control on this plugin. This cannot be undone.', 'pmt-postgrid-block-editor-elementor-support')
+						)
+					),
+					el(
+						PanelBody,
+						{ title: __('Document', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
+						el(
+							'a',
+							{
+								href: 'https://www.postmagthemes.com/docs/documentation-for-post-grid-plugins/',
+								target: '_blank',
+								rel: 'noopener noreferrer',
+							},
+							__('Document', 'pmt-postgrid-block-editor-elementor-support')
+						)
+					),
+					el(
+						PanelBody,
+						{ title: __('Buy Premium', 'pmt-postgrid-block-editor-elementor-support'), initialOpen: false },
+						el(
+							'a',
+							{
+								href: 'https://www.postmagthemes.com/downloads/pmt-pro-postgrid-block-editor-with-elementor-support/',
+								target: '_blank',
+								rel: 'noopener noreferrer',
+							},
+							__('Buy Premium', 'pmt-postgrid-block-editor-elementor-support')
 						)
 					)
 				),

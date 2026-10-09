@@ -1,5 +1,5 @@
 /*
- * This block's markup is fully namespaced (.pmt-* classes throughout) so
+ * This block's markup is fully namespaced (.pmtpofob-* classes throughout) so
  * it never collides with Context Blog Pro's own .blog-snippet / .row /
  * .col-lg-* etc. -- intentional, on request. That means it does NOT
  * inherit the theme's CSS automatically; everything the grid needs
@@ -11,16 +11,16 @@
    explicitly declare box-sizing falls back to the browser default
    (content-box), so width:100% + padding/border/margin can silently
    push it wider than its parent -- exactly the "image shifts outside
-   the card" symptom. Scoped to .pmt-post-grid-block only, so it can't
+   the card" symptom. Scoped to .pmtpofob-post-grid-block only, so it can't
    affect anything else on the page. */
-.pmt-post-grid-block,
-.pmt-post-grid-block *,
-.pmt-post-grid-block *::before,
-.pmt-post-grid-block *::after {
+.pmtpofob-post-grid-block,
+.pmtpofob-post-grid-block *,
+.pmtpofob-post-grid-block *::before,
+.pmtpofob-post-grid-block *::after {
 	box-sizing: border-box;
 }
 
-.pmt-post-grid-block .pmt-row>[class*='pmt-col-'] {
+.pmtpofob-post-grid-block .pmtpofob-row>[class*='pmtpofob-col-'] {
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: column;
@@ -31,51 +31,51 @@
    overflow, and no need for the row's old negative-margin/padding
    trick (which doubled the visible gap between cards versus the row
    gap, since two adjacent cards' padding summed together). */
-.pmt-post-grid-block .pmt-col-lg-2 {
+.pmtpofob-post-grid-block .pmtpofob-col-lg-2 {
 	/* 6 per row */
-	flex: 0 0 calc((100% - 5 * var(--pmt-column-margin, 15px)) / 6);
-	max-width: calc((100% - 5 * var(--pmt-column-margin, 15px)) / 6);
+	flex: 0 0 calc((100% - 5 * var(--pmtpofob-column-margin, 15px)) / 6);
+	max-width: calc((100% - 5 * var(--pmtpofob-column-margin, 15px)) / 6);
 }
 
-.pmt-post-grid-block .pmt-col-lg-3 {
+.pmtpofob-post-grid-block .pmtpofob-col-lg-3 {
 	/* 4 per row */
-	flex: 0 0 calc((100% - 3 * var(--pmt-column-margin, 15px)) / 4);
-	max-width: calc((100% - 3 * var(--pmt-column-margin, 15px)) / 4);
+	flex: 0 0 calc((100% - 3 * var(--pmtpofob-column-margin, 15px)) / 4);
+	max-width: calc((100% - 3 * var(--pmtpofob-column-margin, 15px)) / 4);
 }
 
-.pmt-post-grid-block .pmt-col-lg-4 {
+.pmtpofob-post-grid-block .pmtpofob-col-lg-4 {
 	/* 3 per row */
-	flex: 0 0 calc((100% - 2 * var(--pmt-column-margin, 15px)) / 3);
-	max-width: calc((100% - 2 * var(--pmt-column-margin, 15px)) / 3);
+	flex: 0 0 calc((100% - 2 * var(--pmtpofob-column-margin, 15px)) / 3);
+	max-width: calc((100% - 2 * var(--pmtpofob-column-margin, 15px)) / 3);
 }
 
-.pmt-post-grid-block .pmt-col-lg-6 {
+.pmtpofob-post-grid-block .pmtpofob-col-lg-6 {
 	/* 2 per row */
-	flex: 0 0 calc((100% - var(--pmt-column-margin, 15px)) / 2);
-	max-width: calc((100% - var(--pmt-column-margin, 15px)) / 2);
+	flex: 0 0 calc((100% - var(--pmtpofob-column-margin, 15px)) / 2);
+	max-width: calc((100% - var(--pmtpofob-column-margin, 15px)) / 2);
 }
 
-.pmt-post-grid-block .pmt-col-lg-12 {
+.pmtpofob-post-grid-block .pmtpofob-col-lg-12 {
 	/* 1 per row -- no gap to subtract */
 	flex: 0 0 100%;
 	max-width: 100%;
 }
 
 @media (max-width: 991px) {
-	.pmt-post-grid-block .pmt-col-md-6 {
-		flex: 0 0 calc((100% - var(--pmt-column-margin, 15px)) / 2);
-		max-width: calc((100% - var(--pmt-column-margin, 15px)) / 2);
+	.pmtpofob-post-grid-block .pmtpofob-col-md-6 {
+		flex: 0 0 calc((100% - var(--pmtpofob-column-margin, 15px)) / 2);
+		max-width: calc((100% - var(--pmtpofob-column-margin, 15px)) / 2);
 	}
 }
 
 @media (max-width: 575px) {
-	.pmt-post-grid-block .pmt-col-sm-6 {
+	.pmtpofob-post-grid-block .pmtpofob-col-sm-6 {
 		flex: 0 0 100%;
 		max-width: 100%;
 	}
 }
 
-.pmt-post-grid-block--empty {
+.pmtpofob-post-grid-block--empty {
 	padding: 24px;
 	border: 1px dashed #ccc;
 	border-radius: 6px;
@@ -83,26 +83,26 @@
 	text-align: center;
 }
 
-.pmt-thumb-blog.pmt-post-grid-block {
+.pmtpofob-thumb-blog.pmtpofob-post-grid-block {
 
-	.pmt-row {
+	.pmtpofob-row {
 		display: flex;
 		flex-wrap: wrap;
-		gap: var(--pmt-row-margin, 30px) var(--pmt-column-margin, 15px);
+		gap: var(--pmtpofob-row-margin, 30px) var(--pmtpofob-column-margin, 15px);
 	}
 
-	.pmt-col-lg-4,
-	.pmt-col-lg-3 {
+	.pmtpofob-col-lg-4,
+	.pmtpofob-col-lg-3 {
 		border-radius: 5px;
 	}
 
-	.pmt-blog-snippet {
+	.pmtpofob-blog-snippet {
 		width: 100%;
 		overflow: hidden;
 		position: relative;
-		box-shadow: var(--pmt-box-shadow, 0px 2px 12px 0px rgba(0, 0, 0, 0.09));
-		border: var(--pmt-box-border, 0px solid grey);
-		border-radius: var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-bottom, 10px) var(--pmt-box-radius-bottom, 10px);
+		box-shadow: var(--pmtpofob-box-shadow, 0px 2px 12px 0px rgba(0, 0, 0, 0.09));
+		border: var(--pmtpofob-box-border, 0px solid grey);
+		border-radius: var(--pmtpofob-box-radius-top, 10px) var(--pmtpofob-box-radius-top, 10px) var(--pmtpofob-box-radius-bottom, 10px) var(--pmtpofob-box-radius-bottom, 10px);
 		text-align: start;
 		display: flex;
 		flex-direction: column;
@@ -113,25 +113,25 @@
 		object-fit: cover;
 		width: 100%;
 		aspect-ratio: 1.618;
-		border-radius: var(--pmt-image-radius, 10px);
+		border-radius: var(--pmtpofob-image-radius, 10px);
 		height: 100%;
 	}
 
-	.pmt-design2-col-a img {
+	.pmtpofob-design2-col-a img {
 		aspect-ratio: 1.2;
 	}
 
-	.pmt-related-post__image img {
+	.pmtpofob-related-post__image img {
 		aspect-ratio: 1;
 	}
 
-	.pmt-img-holder {
+	.pmtpofob-img-holder {
 		display: block;
 		margin: 2px 2px 2px;
 		flex-shrink: 0;
 	}
 
-	.pmt-blog-content {
+	.pmtpofob-blog-content {
 		padding: 10px 20px;
 		display: flex;
 		flex-direction: column;
@@ -142,40 +142,40 @@
 	   Same gap-safe flex-grow-ratio technique as Design 2's Column A/B
 	   (basis 0, ratios 382:618), so Column margin never causes overflow
 	   regardless of its value. */
-	.pmt-blog-snippet--row {
+	.pmtpofob-blog-snippet--row {
 		flex-direction: row;
 		align-items: stretch;
-		gap: var(--pmt-column-margin, 15px);
+		gap: var(--pmtpofob-column-margin, 15px);
 	}
 
-	.pmt-blog-snippet--row.pmt-row-reverse {
+	.pmtpofob-blog-snippet--row.pmtpofob-row-reverse {
 		flex-direction: row-reverse;
 	}
 
-	.pmt-blog-snippet--row .pmt-img-holder {
+	.pmtpofob-blog-snippet--row .pmtpofob-img-holder {
 		flex: 382 1 0%;
 		min-width: 0;
 		/* margin: 0; */
 		/* background-color: #f1f0f0; */
 	}
 
-	.pmt-blog-snippet--row .pmt-img-holder img {
+	.pmtpofob-blog-snippet--row .pmtpofob-img-holder img {
 		width: 100%;
 		height: 100%;
 	}
 
-	.pmt-blog-snippet--row .pmt-blog-content {
+	.pmtpofob-blog-snippet--row .pmtpofob-blog-content {
 		flex: 618 1 0%;
 		min-width: 0;
 		padding: 0;
 	}
 
-	.pmt-extra-info span,
-	.pmt-extra-info span a,
-	.pmt-extra-info a,
+	.pmtpofob-extra-info span,
+	.pmtpofob-extra-info span a,
+	.pmtpofob-extra-info a,
 	.social-share li a,
 	.social-share,
-	.image-inner-content .pmt-blog-snippet .pmt-blog-content .pmt-extra-info a {
+	.image-inner-content .pmtpofob-blog-snippet .pmtpofob-blog-content .pmtpofob-extra-info a {
 		color: inherit;
 	}
 
@@ -188,7 +188,7 @@
 		color: #999;
 	}
 
-	.pmt-extra-info {
+	.pmtpofob-extra-info {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
@@ -207,23 +207,23 @@
 		order: 98;
 	}
 
-	.pmt-extra-info,
+	.pmtpofob-extra-info,
 	.social-share {
 		line-height: 1;
 	}
 
-	.pmt-extra-info li {
+	.pmtpofob-extra-info li {
 		margin-block: 5px;
 		margin-inline: 0 10px;
 	}
 
-	.pmt-meta-author {
+	.pmtpofob-meta-author {
 		display: inline-flex;
 		align-items: center;
 		gap: 5px;
 	}
 
-	.pmt-author-avatar {
+	.pmtpofob-author-avatar {
 		width: 20px;
 		height: 20px;
 		border-radius: 50%;
@@ -231,7 +231,7 @@
 		flex-shrink: 0;
 	}
 
-	.pmt-category-tag {
+	.pmtpofob-category-tag {
 		display: inline-flex;
 		align-items: center;
 		gap: 4px;
@@ -239,55 +239,55 @@
 		flex-wrap: wrap;
 	}
 
-	.pmt-category-tag__prefix,
-	.pmt-category-tag__label {
+	.pmtpofob-category-tag__prefix,
+	.pmtpofob-category-tag__label {
 		display: inline-block;
 		font-size: 12px;
 		font-weight: 500;
 		letter-spacing: 0.02em;
 		padding: 4px 9px;
-		border-radius: var(--pmt-box-radius-top, 0px);
+		border-radius: var(--pmtpofob-box-radius-top, 0px);
 		word-break: break-word;
 	}
 
 
-	.pmt-category-tag__prefix {
+	.pmtpofob-category-tag__prefix {
 		margin-right: -12px;
 		z-index: 10;
 	}
 
-	.pmt-category-tag__label {
+	.pmtpofob-category-tag__label {
 		text-decoration: none;
 	}
 
-	.pmt-title {
+	.pmtpofob-title {
 		/* font-family: sans-serif;  not added casuse theme h tag must have some family already*/
-		font-size: var(--pmt-title-font-size, 20px);
+		font-size: var(--pmtpofob-title-font-size, 20px);
 		word-break: break-word;
 		overflow-wrap: break-word;
 		margin: 0 0 5px;
 		line-height: 1.4;
 	}
 
-	/* .pmt-title a {
+	/* .pmtpofob-title a {
 		color: #6b6b6b;
 	} */
 
-	.pmt-blog-snippet--simple .pmt-title {
-		font-size: calc(var(--pmt-title-font-size, 20px) * var(--pmt-title-scale-b, 0.75));
+	.pmtpofob-blog-snippet--simple .pmtpofob-title {
+		font-size: calc(var(--pmtpofob-title-font-size, 20px) * var(--pmtpofob-title-scale-b, 0.75));
 		line-height: 1.3;
 		margin: 0 0 12px;
 	}
 
-	.pmt-blog-snippet--row .pmt-title {
+	.pmtpofob-blog-snippet--row .pmtpofob-title {
 		min-height: 40px;
 	}
 
-	.pmt-blog-snippet--simple .pmt-blog-content {
+	.pmtpofob-blog-snippet--simple .pmtpofob-blog-content {
 		padding: 4px 10px;
 	}
 
-	.pmt-excerpt {
+	.pmtpofob-excerpt {
 		font-size: 14px;
 		line-height: 1.6;
 		color: #6b6b6b;
@@ -295,7 +295,7 @@
 	}
 
 	/* Tags: distinct pill style, separate from the category badge. */
-	.pmt-tag-list {
+	.pmtpofob-tag-list {
 		display: flex;
 		flex-wrap: wrap;
 		gap: 6px;
@@ -304,28 +304,28 @@
 		padding: 0;
 	}
 
-	.pmt-design3-list:not(.pmt-row-reverse) .pmt-blog-content.no_image {
+	.pmtpofob-design3-list:not(.pmtpofob-row-reverse) .pmtpofob-blog-content.no_image {
 		margin-left: 12px;
 	}
 
-	.pmt-design3-list .pmt-row-reverse .pmt-blog-content {
+	.pmtpofob-design3-list .pmtpofob-row-reverse .pmtpofob-blog-content {
 		margin-left: 12px;
 		margin-top: 12px;
 	}
 
-	.pmt-design3-list:not(.pmt-row-reverse) .pmt-blog-content {
+	.pmtpofob-design3-list:not(.pmtpofob-row-reverse) .pmtpofob-blog-content {
 		margin-top: 12px;
 	}
 
-	/* .pmt-design3-list img {
+	/* .pmtpofob-design3-list img {
 		padding: 2px 2px 2px 2px;
 	} */
 
-	.pmt-tag-list li {
+	.pmtpofob-tag-list li {
 		margin: 0;
 	}
 
-	.pmt-tag-list li a {
+	.pmtpofob-tag-list li a {
 		display: inline-block;
 		font-size: 11px;
 		font-weight: 500;
@@ -339,18 +339,17 @@
 		transition: background-color 0.15s ease, color 0.15s ease;
 	}
 
-	.pmt-tag-list li a:hover {
+	.pmtpofob-tag-list li a:hover {
 		filter: brightness(0.92);
 	}
 
-	.pmt-read-more {
+	.pmtpofob-read-more {
 		display: inline-flex;
 		align-items: center;
 		align-self: flex-start;
 		gap: 6px;
 		font-weight: 500;
 		color: #fff;
-		text-decoration: none;
 		padding: 8px 18px;
 		border-radius: 6px;
 		margin-top: 10px;
@@ -358,51 +357,51 @@
 		transition: opacity 0.15s ease;
 	}
 
-	.pmt-read-more:hover {
+	.pmtpofob-read-more:hover {
 		opacity: 0.88;
 	}
 
-	.pmt-read-more span {
+	.pmtpofob-read-more span {
 		transition: transform 0.15s ease;
 	}
 
-	.pmt-read-more:hover span {
+	.pmtpofob-read-more:hover span {
 		transform: translateX(2px);
 	}
 
 	/* Text alignment: title / excerpt / meta rows. */
-	&.pmt-align-left {
-		.pmt-blog-content {
+	&.pmtpofob-align-left {
+		.pmtpofob-blog-content {
 			text-align: start;
 		}
 
-		.pmt-category-tag,
-		.pmt-extra-info,
-		.pmt-tag-list {
+		.pmtpofob-category-tag,
+		.pmtpofob-extra-info,
+		.pmtpofob-tag-list {
 			justify-content: flex-start;
 		}
 	}
 
-	&.pmt-align-center {
-		.pmt-blog-content {
+	&.pmtpofob-align-center {
+		.pmtpofob-blog-content {
 			text-align: center;
 		}
 
-		.pmt-category-tag,
-		.pmt-extra-info,
-		.pmt-tag-list {
+		.pmtpofob-category-tag,
+		.pmtpofob-extra-info,
+		.pmtpofob-tag-list {
 			justify-content: center;
 		}
 	}
 
-	&.pmt-align-right {
-		.pmt-blog-content {
+	&.pmtpofob-align-right {
+		.pmtpofob-blog-content {
 			text-align: end;
 		}
 
-		.pmt-category-tag,
-		.pmt-extra-info,
-		.pmt-tag-list {
+		.pmtpofob-category-tag,
+		.pmtpofob-extra-info,
+		.pmtpofob-tag-list {
 			justify-content: flex-end;
 		}
 	}
@@ -412,122 +411,122 @@
 	}
 }
 
-.home-section.pmt-thumb-blog {
+.home-section.pmtpofob-thumb-blog {
 	padding: 30px 0;
 }
 
-.pmt-main-title {
+.pmtpofob-main-title {
 	font-weight: 600;
 	line-height: 1.25;
 	margin: 0 0 24px;
 	color: #17181b;
 }
 
-h1.pmt-main-title {
+h1.pmtpofob-main-title {
 	font-size: 32px;
 }
 
-h2.pmt-main-title {
+h2.pmtpofob-main-title {
 	font-size: 26px;
 }
 
 /* Design 2: golden-ratio two-column layout (38.2% / 61.8%), 5 posts.
-   Reuses the same .pmt-blog-snippet / .pmt-title / .pmt-extra-info etc.
-   rules above (this wrapper still carries .pmt-thumb-blog.pmt-post-grid-block),
+   Reuses the same .pmtpofob-blog-snippet / .pmtpofob-title / .pmtpofob-extra-info etc.
+   rules above (this wrapper still carries .pmtpofob-thumb-blog.pmtpofob-post-grid-block),
    so box-shadow, border, radius, and all Style-panel options apply
    identically to Design 1 and Design 2. Only the grid scaffolding below
    is new. */
 
-.pmt-design2-grid {
+.pmtpofob-design2-grid {
 	display: flex;
 	align-items: stretch;
-	gap: var(--pmt-column-margin, 15px);
+	gap: var(--pmtpofob-column-margin, 15px);
 }
 
-.pmt-design2-col-a {
+.pmtpofob-design2-col-a {
 	flex: 382 1 0%;
 	min-width: 0;
 	display: flex;
 }
 
-.pmt-design2-col-a .pmt-blog-snippet {
+.pmtpofob-design2-col-a .pmtpofob-blog-snippet {
 	width: 100%;
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 }
 
-.pmt-design2-col-b {
+.pmtpofob-design2-col-b {
 	flex: 618 1 0%;
 	min-width: 0;
 	display: flex;
 	flex-direction: column;
-	gap: var(--pmt-row-margin, 30px);
+	gap: var(--pmtpofob-row-margin, 30px);
 }
 
-.pmt-design2-row {
+.pmtpofob-design2-row {
 	display: flex;
 	flex: 1;
-	gap: var(--pmt-column-margin, 15px);
+	gap: var(--pmtpofob-column-margin, 15px);
 }
 
-.pmt-design2-cell {
+.pmtpofob-design2-cell {
 	flex: 1 1 0%;
 	min-width: 0;
 	display: flex;
 }
 
-.pmt-design2-cell--empty {
+.pmtpofob-design2-cell--empty {
 	border: 1px dashed #d9d9d9;
-	border-radius: var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-bottom, 10px) var(--pmt-box-radius-bottom, 10px);
+	border-radius: var(--pmtpofob-box-radius-top, 10px) var(--pmtpofob-box-radius-top, 10px) var(--pmtpofob-box-radius-bottom, 10px) var(--pmtpofob-box-radius-bottom, 10px);
 	background: transparent;
 }
 
-.pmt-design2-cell .pmt-blog-snippet {
+.pmtpofob-design2-cell .pmtpofob-blog-snippet {
 	width: 100%;
 }
 
 /* Simplified card (Design 2, Column B): lighter footprint -- smaller
    title, single compact meta line, tighter padding. Title/content
-   overrides live inside the .pmt-thumb-blog.pmt-post-grid-block block
+   overrides live inside the .pmtpofob-thumb-blog.pmtpofob-post-grid-block block
    above (needed for CSS specificity to actually beat the base
-   .pmt-title rule -- see 2.11.1 fix note in readme.txt). */
+   .pmtpofob-title rule -- see 2.11.1 fix note in readme.txt). */
 
-.pmt-extra-info--simple {
+.pmtpofob-extra-info--simple {
 	font-size: 11px;
 	padding: 4px 0;
 }
 
 @media (max-width: 767px) {
-	.pmt-design2-grid {
+	.pmtpofob-design2-grid {
 		flex-direction: column;
 	}
 
-	.pmt-design2-col-a,
-	.pmt-design2-col-b {
+	.pmtpofob-design2-col-a,
+	.pmtpofob-design2-col-b {
 		flex: 1 1 100%;
 	}
 
-	.pmt-design2-row {
+	.pmtpofob-design2-row {
 		flex-direction: row;
 	}
 }
 
 /* Design 3: stacked list of image+content rows. */
-.pmt-design3-list {
+.pmtpofob-design3-list {
 	display: flex;
 	flex-direction: column;
-	gap: var(--pmt-row-margin, 30px);
+	gap: var(--pmtpofob-row-margin, 30px);
 }
 
-.pmt-design3-item {
+.pmtpofob-design3-item {
 	width: 100%;
 }
 
 @media (max-width: 575px) {
 
-	.pmt-blog-snippet--row,
-	.pmt-blog-snippet--row.pmt-row-reverse {
+	.pmtpofob-blog-snippet--row,
+	.pmtpofob-blog-snippet--row.pmtpofob-row-reverse {
 		flex-direction: column;
 	}
 }
@@ -536,13 +535,13 @@ h2.pmt-main-title {
    selected category's archive (or the blog page if no category is
    set). Hidden whenever Specific Posts is active, or when there
    simply aren't more matching posts than what's already shown. */
-.pmt-show-more-wrap {
+.pmtpofob-show-more-wrap {
 	display: flex;
 	justify-content: flex-end;
 	margin-top: 10px;
 }
 
-.pmt-show-more {
+.pmtpofob-show-more {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
@@ -553,18 +552,18 @@ h2.pmt-main-title {
 	padding: 8px 18px;
 }
 
-.pmt-show-more span {
+.pmtpofob-show-more span {
 	transition: transform 0.15s ease;
 }
 
-.pmt-show-more:hover span {
+.pmtpofob-show-more:hover span {
 	transform: translateX(2px);
 }
 
 /* Section header: main title (left) + live category filter dropdown
    (right), same line. margin-left:auto on the dropdown wrapper pins it
    to the right edge whether or not a title is actually present. */
-.pmt-section-header {
+.pmtpofob-section-header {
 	display: flex;
 	align-items: center;
 	flex-wrap: wrap;
@@ -572,24 +571,24 @@ h2.pmt-main-title {
 	margin-bottom: 20px;
 }
 
-.pmt-section-header .pmt-main-title {
+.pmtpofob-section-header .pmtpofob-main-title {
 	margin-bottom: 0;
 }
 
-.pmt-filter-controls {
+.pmtpofob-filter-controls {
 	display: flex;
 	align-items: center;
 	gap: 10px;
 	margin-left: auto;
 }
 
-.pmt-orderby-filter-wrap,
-.pmt-category-filter-wrap {
+.pmtpofob-orderby-filter-wrap,
+.pmtpofob-category-filter-wrap {
 	margin: 0;
 }
 
-.pmt-orderby-filter-wrap .pmt-orderby-filter,
-.pmt-category-filter-wrap .pmt-category-filter {
+.pmtpofob-orderby-filter-wrap .pmtpofob-orderby-filter,
+.pmtpofob-category-filter-wrap .pmtpofob-category-filter {
 	font-size: 13px;
 	color: #17181b;
 	padding: 2px 27px 2px 4px;
@@ -605,29 +604,29 @@ h2.pmt-main-title {
 	background-position: right 12px center;
 }
 
-.pmt-orderby-filter-wrap .pmt-orderby-filter:focus,
-.pmt-category-filter-wrap .pmt-category-filter:focus {
+.pmtpofob-orderby-filter-wrap .pmtpofob-orderby-filter:focus,
+.pmtpofob-category-filter-wrap .pmtpofob-category-filter:focus {
 	outline: 2px solid #17181b;
 	outline-offset: 1px;
 }
 
 /* Loading state while the AJAX category swap is in flight. */
-.pmt-grid-content {
+.pmtpofob-grid-content {
 	transition: opacity 0.15s ease;
 }
 
-.pmt-grid-content.pmt-loading {
+.pmtpofob-grid-content.pmtpofob-loading {
 	pointer-events: none;
 }
 
 /* Skeleton loading state: placeholder shapes matching whichever design
    is active, with a shimmering gradient sweep instead of the previous
    plain opacity fade. */
-.pmt-skeleton-wrap {
-	animation: pmt-skeleton-fade-in 0.15s ease;
+.pmtpofob-skeleton-wrap {
+	animation: pmtpofob-skeleton-fade-in 0.15s ease;
 }
 
-@keyframes pmt-skeleton-fade-in {
+@keyframes pmtpofob-skeleton-fade-in {
 	from {
 		opacity: 0;
 	}
@@ -637,63 +636,63 @@ h2.pmt-main-title {
 	}
 }
 
-.pmt-skeleton-card {
+.pmtpofob-skeleton-card {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 	width: 100%;
 }
 
-.pmt-skeleton-card--row {
+.pmtpofob-skeleton-card--row {
 	flex-direction: row;
 	align-items: flex-start;
-	gap: var(--pmt-column-margin, 15px);
+	gap: var(--pmtpofob-column-margin, 15px);
 }
 
-.pmt-skeleton-card--row .pmt-skeleton-image {
+.pmtpofob-skeleton-card--row .pmtpofob-skeleton-image {
 	flex: 382 1 0%;
 	aspect-ratio: 1.618;
 }
 
-.pmt-skeleton-card-content {
+.pmtpofob-skeleton-card-content {
 	flex: 618 1 0%;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 }
 
-.pmt-skeleton-card--simple .pmt-skeleton-image {
+.pmtpofob-skeleton-card--simple .pmtpofob-skeleton-image {
 	aspect-ratio: 1.4;
 }
 
-.pmt-skeleton-block {
+.pmtpofob-skeleton-block {
 	background: linear-gradient(90deg, #eee 25%, #f5f5f5 37%, #eee 63%);
 	background-size: 400% 100%;
-	animation: pmt-skeleton-shimmer 1.4s ease infinite;
+	animation: pmtpofob-skeleton-shimmer 1.4s ease infinite;
 	border-radius: 6px;
 }
 
-.pmt-skeleton-image {
+.pmtpofob-skeleton-image {
 	width: 100%;
 	aspect-ratio: 1.618;
-	border-radius: var(--pmt-image-radius, 10px);
+	border-radius: var(--pmtpofob-image-radius, 10px);
 }
 
-.pmt-skeleton-line {
+.pmtpofob-skeleton-line {
 	height: 14px;
 	width: 100%;
 }
 
-.pmt-skeleton-line--title {
+.pmtpofob-skeleton-line--title {
 	height: 18px;
 	width: 80%;
 }
 
-.pmt-skeleton-line--short {
+.pmtpofob-skeleton-line--short {
 	width: 55%;
 }
 
-@keyframes pmt-skeleton-shimmer {
+@keyframes pmtpofob-skeleton-shimmer {
 	0% {
 		background-position: 100% 50%;
 	}
@@ -704,7 +703,7 @@ h2.pmt-main-title {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.pmt-skeleton-block {
+	.pmtpofob-skeleton-block {
 		animation: none;
 		background: #eee;
 	}
@@ -712,14 +711,14 @@ h2.pmt-main-title {
 
 /* Design 3: related posts strip under each row's content -- up to 4
    items, square images, title 20% smaller than the parent by default
-   (adjustable via --pmt-related-title-scale, Typography panel). */
-.pmt-related-posts {
+   (adjustable via --pmtpofob-related-title-scale, Typography panel). */
+.pmtpofob-related-posts {
 	margin-top: 14px;
 	padding-top: 14px;
 	border-top: 1px solid #eee;
 }
 
-.pmt-related-posts__label {
+.pmtpofob-related-posts__label {
 	font-size: 12px;
 	font-weight: 600;
 	text-transform: uppercase;
@@ -728,13 +727,13 @@ h2.pmt-main-title {
 	margin: 0 0 10px;
 }
 
-.pmt-related-posts__list {
+.pmtpofob-related-posts__list {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 12px;
 }
 
-.pmt-related-post {
+.pmtpofob-related-post {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
@@ -742,36 +741,36 @@ h2.pmt-main-title {
 	min-width: 90px;
 	text-decoration: none;
 	color: inherit;
-	box-shadow: var(--pmt-box-shadow, 0px 2px 12px 0px rgba(0, 0, 0, 0.09));
-	border: var(--pmt-box-border, 0px solid grey);
-	border-radius: var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-top, 10px) var(--pmt-box-radius-bottom, 10px) var(--pmt-box-radius-bottom, 10px);
+	box-shadow: var(--pmtpofob-box-shadow, 0px 2px 12px 0px rgba(0, 0, 0, 0.09));
+	border: var(--pmtpofob-box-border, 0px solid grey);
+	border-radius: var(--pmtpofob-box-radius-top, 10px) var(--pmtpofob-box-radius-top, 10px) var(--pmtpofob-box-radius-bottom, 10px) var(--pmtpofob-box-radius-bottom, 10px);
 }
 
-.pmt-related-post--empty {
+.pmtpofob-related-post--empty {
 	aspect-ratio: 1;
 	border: 1px dashed #d9d9d9;
-	border-radius: var(--pmt-image-radius, 10px);
+	border-radius: var(--pmtpofob-image-radius, 10px);
 	background: transparent;
 }
 
-.pmt-related-post__image {
+.pmtpofob-related-post__image {
 	aspect-ratio: 1;
 	overflow: hidden;
-	border-radius: var(--pmt-image-radius, 10px);
+	border-radius: var(--pmtpofob-image-radius, 10px);
 	background: #f1f0f0;
 	margin: 2px 2px 2px 2px;
 }
 
-.pmt-related-post__image img {
+.pmtpofob-related-post__image img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	aspect-ratio: 1;
-	border-radius: var(--pmt-image-radius, 10px);
+	border-radius: var(--pmtpofob-image-radius, 10px);
 }
 
-.pmt-related-post__title {
-	font-size: calc(var(--pmt-title-font-size, 20px) * var(--pmt-related-title-scale, 0.8));
+.pmtpofob-related-post__title {
+	font-size: calc(var(--pmtpofob-title-font-size, 20px) * var(--pmtpofob-related-title-scale, 0.8));
 	line-height: 1.35;
 	margin: 8px;
 	word-break: break-word;
@@ -780,7 +779,7 @@ h2.pmt-main-title {
 }
 
 @media (max-width: 480px) {
-	.pmt-related-post {
+	.pmtpofob-related-post {
 		flex: 1 1 calc(50% - 6px);
 	}
 }

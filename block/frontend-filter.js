@@ -1,9 +1,9 @@
 /**
  * Live filter dropdowns -- listens for changes on either
- * .pmt-category-filter or .pmt-orderby-filter, sends BOTH dropdowns'
+ * .pmtpofob-category-filter or .pmtpofob-orderby-filter, sends BOTH dropdowns'
  * current values (not just whichever one changed) plus this grid's
  * instance_id to the REST endpoint, and replaces just that grid's
- * .pmt-grid-content with the response. No page reload.
+ * .pmtpofob-grid-content with the response. No page reload.
  *
  * Sending both values together on every request matters: if a visitor
  * has already filtered to a category and then changes the sort order,
@@ -11,8 +11,8 @@
  * changing one dropdown would silently reset the other.
  *
  * Multiple grids on the same page work independently: each dropdown is
- * tied to its own instance_id via a matching data-pmt-instance
- * attribute, shared by both dropdowns and the .pmt-grid-content
+ * tied to its own instance_id via a matching data-pmtpofob-instance
+ * attribute, shared by both dropdowns and the .pmtpofob-grid-content
  * container within the same wrapper.
  *
  * While the request is in flight, the existing content is swapped for a
@@ -24,28 +24,28 @@
  */
 ( function () {
 	function findByInstance( wrapper, selector, instanceId ) {
-		return wrapper.querySelector( selector + '[data-pmt-instance="' + instanceId + '"]' );
+		return wrapper.querySelector( selector + '[data-pmtpofob-instance="' + instanceId + '"]' );
 	}
 
 	function skeletonCard() {
 		return (
-			'<div class="pmt-skeleton-card">' +
-				'<div class="pmt-skeleton-block pmt-skeleton-image"></div>' +
-				'<div class="pmt-skeleton-block pmt-skeleton-line pmt-skeleton-line--title"></div>' +
-				'<div class="pmt-skeleton-block pmt-skeleton-line"></div>' +
-				'<div class="pmt-skeleton-block pmt-skeleton-line pmt-skeleton-line--short"></div>' +
+			'<div class="pmtpofob-skeleton-card">' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-image"></div>' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line pmtpofob-skeleton-line--title"></div>' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line"></div>' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line pmtpofob-skeleton-line--short"></div>' +
 			'</div>'
 		);
 	}
 
 	function skeletonRowCard() {
 		return (
-			'<div class="pmt-skeleton-card pmt-skeleton-card--row">' +
-				'<div class="pmt-skeleton-block pmt-skeleton-image"></div>' +
-				'<div class="pmt-skeleton-card-content">' +
-					'<div class="pmt-skeleton-block pmt-skeleton-line pmt-skeleton-line--title"></div>' +
-					'<div class="pmt-skeleton-block pmt-skeleton-line"></div>' +
-					'<div class="pmt-skeleton-block pmt-skeleton-line pmt-skeleton-line--short"></div>' +
+			'<div class="pmtpofob-skeleton-card pmtpofob-skeleton-card--row">' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-image"></div>' +
+				'<div class="pmtpofob-skeleton-card-content">' +
+					'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line pmtpofob-skeleton-line--title"></div>' +
+					'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line"></div>' +
+					'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line pmtpofob-skeleton-line--short"></div>' +
 				'</div>' +
 			'</div>'
 		);
@@ -53,9 +53,9 @@
 
 	function skeletonSimpleCard() {
 		return (
-			'<div class="pmt-skeleton-card pmt-skeleton-card--simple">' +
-				'<div class="pmt-skeleton-block pmt-skeleton-image"></div>' +
-				'<div class="pmt-skeleton-block pmt-skeleton-line pmt-skeleton-line--title"></div>' +
+			'<div class="pmtpofob-skeleton-card pmtpofob-skeleton-card--simple">' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-image"></div>' +
+				'<div class="pmtpofob-skeleton-block pmtpofob-skeleton-line pmtpofob-skeleton-line--title"></div>' +
 			'</div>'
 		);
 	}
@@ -67,60 +67,60 @@
 	 * design/settings down from PHP separately.
 	 */
 	function buildSkeleton( gridContent, wrapper ) {
-		if ( wrapper.classList.contains( 'pmt-design2' ) ) {
+		if ( wrapper.classList.contains( 'pmtpofob-design2' ) ) {
 			// Fixed shape regardless of post count: 1 featured + 2x2.
 			return (
-				'<div class="pmt-design2-grid pmt-skeleton-wrap">' +
-					'<div class="pmt-design2-col-a">' + skeletonCard() + '</div>' +
-					'<div class="pmt-design2-col-b">' +
-						'<div class="pmt-design2-row">' +
-							'<div class="pmt-design2-cell">' + skeletonSimpleCard() + '</div>' +
-							'<div class="pmt-design2-cell">' + skeletonSimpleCard() + '</div>' +
+				'<div class="pmtpofob-design2-grid pmtpofob-skeleton-wrap">' +
+					'<div class="pmtpofob-design2-col-a">' + skeletonCard() + '</div>' +
+					'<div class="pmtpofob-design2-col-b">' +
+						'<div class="pmtpofob-design2-row">' +
+							'<div class="pmtpofob-design2-cell">' + skeletonSimpleCard() + '</div>' +
+							'<div class="pmtpofob-design2-cell">' + skeletonSimpleCard() + '</div>' +
 						'</div>' +
-						'<div class="pmt-design2-row">' +
-							'<div class="pmt-design2-cell">' + skeletonSimpleCard() + '</div>' +
-							'<div class="pmt-design2-cell">' + skeletonSimpleCard() + '</div>' +
+						'<div class="pmtpofob-design2-row">' +
+							'<div class="pmtpofob-design2-cell">' + skeletonSimpleCard() + '</div>' +
+							'<div class="pmtpofob-design2-cell">' + skeletonSimpleCard() + '</div>' +
 						'</div>' +
 					'</div>' +
 				'</div>'
 			);
 		}
 
-		if ( wrapper.classList.contains( 'pmt-design3' ) ) {
-			var items = gridContent.querySelectorAll( '.pmt-design3-item' );
+		if ( wrapper.classList.contains( 'pmtpofob-design3' ) ) {
+			var items = gridContent.querySelectorAll( '.pmtpofob-design3-item' );
 			var rowCount = items.length || 3;
 			var rowsHtml = '';
 			for ( var r = 0; r < rowCount; r++ ) {
-				rowsHtml += '<div class="pmt-design3-item">' + skeletonRowCard() + '</div>';
+				rowsHtml += '<div class="pmtpofob-design3-item">' + skeletonRowCard() + '</div>';
 			}
-			return '<div class="pmt-design3-list pmt-skeleton-wrap">' + rowsHtml + '</div>';
+			return '<div class="pmtpofob-design3-list pmtpofob-skeleton-wrap">' + rowsHtml + '</div>';
 		}
 
 		// Design 1: match the existing column class and item count so
 		// the skeleton lines up with whatever grid was just showing.
-		var existingCol = gridContent.querySelector( '.pmt-row > [class*="pmt-col-"]' );
-		var colClass = existingCol ? existingCol.className : 'pmt-col-lg-6 pmt-col-md-6 pmt-col-sm-6';
-		var colCount = gridContent.querySelectorAll( '.pmt-row > [class*="pmt-col-"]' ).length || 4;
+		var existingCol = gridContent.querySelector( '.pmtpofob-row > [class*="pmtpofob-col-"]' );
+		var colClass = existingCol ? existingCol.className : 'pmtpofob-col-lg-6 pmtpofob-col-md-6 pmtpofob-col-sm-6';
+		var colCount = gridContent.querySelectorAll( '.pmtpofob-row > [class*="pmtpofob-col-"]' ).length || 4;
 		var colsHtml = '';
 		for ( var c = 0; c < colCount; c++ ) {
 			colsHtml += '<div class="' + colClass + '">' + skeletonCard() + '</div>';
 		}
-		return '<div class="pmt-row pmt-skeleton-wrap">' + colsHtml + '</div>';
+		return '<div class="pmtpofob-row pmtpofob-skeleton-wrap">' + colsHtml + '</div>';
 	}
 
 	function onFilterChange( event ) {
 		var changed = event.target;
-		var wrapper = changed.closest( '.pmt-post-grid-block' );
+		var wrapper = changed.closest( '.pmtpofob-post-grid-block' );
 		if ( ! wrapper ) {
 			return;
 		}
 
-		var instanceId = changed.getAttribute( 'data-pmt-instance' );
+		var instanceId = changed.getAttribute( 'data-pmtpofob-instance' );
 		if ( ! instanceId ) {
 			return;
 		}
 
-		var gridContent = findByInstance( wrapper, '.pmt-grid-content', instanceId );
+		var gridContent = findByInstance( wrapper, '.pmtpofob-grid-content', instanceId );
 		if ( ! gridContent ) {
 			return;
 		}
@@ -130,8 +130,8 @@
 		// active category, and vice versa. Either one might not exist
 		// (e.g. no categories on the site, or Specific posts is active),
 		// in which case its value just falls back to "not filtered".
-		var categorySelect = findByInstance( wrapper, '.pmt-category-filter', instanceId );
-		var orderbySelect  = findByInstance( wrapper, '.pmt-orderby-filter', instanceId );
+		var categorySelect = findByInstance( wrapper, '.pmtpofob-category-filter', instanceId );
+		var orderbySelect  = findByInstance( wrapper, '.pmtpofob-orderby-filter', instanceId );
 		var category = categorySelect ? categorySelect.value : '';
 		var orderBy  = orderbySelect ? orderbySelect.value : 'date';
 
@@ -144,7 +144,7 @@
 			orderbySelect.disabled = true;
 		}
 		gridContent.innerHTML = buildSkeleton( gridContent, wrapper );
-		gridContent.classList.add( 'pmt-loading' );
+		gridContent.classList.add( 'pmtpofob-loading' );
 
 		function reenable() {
 			if ( categorySelect ) {
@@ -153,7 +153,7 @@
 			if ( orderbySelect ) {
 				orderbySelect.disabled = false;
 			}
-			gridContent.classList.remove( 'pmt-loading' );
+			gridContent.classList.remove( 'pmtpofob-loading' );
 		}
 
 		var settings = window.pmtPostGridData || {};
@@ -200,7 +200,7 @@
 		if (
 			event.target &&
 			event.target.classList &&
-			( event.target.classList.contains( 'pmt-category-filter' ) || event.target.classList.contains( 'pmt-orderby-filter' ) )
+			( event.target.classList.contains( 'pmtpofob-category-filter' ) || event.target.classList.contains( 'pmtpofob-orderby-filter' ) )
 		) {
 			onFilterChange( event );
 		}
